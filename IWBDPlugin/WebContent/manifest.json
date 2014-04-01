@@ -1,0 +1,21 @@
+{
+    "manifest_version": 2,
+    "name": "Interactive Web Browsing Plugin",
+    "description": "POST details of the current page to a remote endpoint.",
+    "version": "0.1",
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": true
+    },
+    "browser_action": {
+        "default_icon": "images/icon.png",
+        "default_popup": "popup.html"
+    },
+    "permissions": [
+        "tabs", 
+        "http://*/", 
+        "https://*/",
+	 "http://www.google.com/",
+  "https://www.google.com/"
+    ]
+}

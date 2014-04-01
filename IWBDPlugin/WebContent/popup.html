@@ -1,0 +1,43 @@
+<html>
+    <head>
+        <style>
+            body { 
+                min-width: 420px; 
+                overflow-x: hidden; 
+                font-family: Arial, sans-serif; 
+                font-size: 12px; 
+            }
+            input, textarea { 
+                width: 420px; 
+            }
+            input#save { 
+                font-weight: bold; width: auto; 
+            }
+        </style>
+        <script src="javaScriptFiles/popup.js"></script>
+    </head>
+    <body>
+        <form id="addbookmark">
+           
+            <p><label for="summary">Summary</label><br />
+            <textarea id="summary" name="summary" rows="6" cols="35"></textarea></p>
+           
+
+			<p><label for="enterTextHere">enterTextHere</label><br />
+            <input type="text" id="enterTextHere" name="enterTextHere" size="50" value="" onkeypress="13"/></p>
+
+            <p>
+                <!-- <input id="save" type="submit" value="Save Bookmark" /> -->
+            </p>
+            <textArea style="min-width: 357px;
+			     min-height: 2px;
+				 overflow-x: hidden;	
+				 resize: none; autoscroll:true" name="take_url" id="get_url"></textArea>
+        </form>
+        
+        <!-- uncomment below div when all urls are need to be seen  -->
+	<div>URL List</div>
+    <ul ID = urlList>
+    </ul> 
+    </body>
+</html>
