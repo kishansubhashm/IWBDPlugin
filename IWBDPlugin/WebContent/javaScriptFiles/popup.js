@@ -13,7 +13,7 @@ function addBookmark() {
     event.preventDefault();
 
     // The URL to POST our data to
-    var postUrl = "http://localhost:8080/IWBDP/SentMessage?wrd="+document.getElementById('summary').value+"&ed="+document.getElementById('enterTextHere').value;
+    var postUrl = "http://localhost:8080/IWBDPlugin/SentMessage?wrd="+document.getElementById('summary').value+"&ed="+document.getElementById('enterTextHere').value;
 
     // Set up an asynchronous AJAX POST request
     var xhr = new XMLHttpRequest();
@@ -102,7 +102,7 @@ chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}
 			   // event.preventDefault();
 
 			    // The URL to POST our data to
-			    var postUrl = "http://localhost:8080/IWBDP/TestMessage";//?wrd="+document.getElementById('summary').value+"&ed="+document.getElementById('enterTextHere').value;
+			    var postUrl = "http://localhost:8080/IWBDPlugin/TestMessage";//?wrd="+document.getElementById('summary').value+"&ed="+document.getElementById('enterTextHere').value;
 
 			    // Set up an asynchronous AJAX POST request
 			    var xhr = new XMLHttpRequest();
