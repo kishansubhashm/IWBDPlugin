@@ -30,18 +30,18 @@ public class TestMessage extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		// TODO Auto-generated method stub
-				response.setContentType("text/plain");
+				response.setContentType("application/javascript");
 				 response.setCharacterEncoding("UTF-8"); 
 				PrintWriter out = response.getWriter();
 				System.out.println("in retrieve messages");
 //				Scanner sc=new Scanner(System.in);
-				String word="kishan";
+				String word="yesNewMessages\n\n";
 //				System.out.println(request.getParameter("title"));
 //				System.out.println("from RetrieveMessages servlet");
 //				System.out.print("enter any word :");
 //				word=sc.next();
 //				System.out.println("entered word is :"+word);
-				out.println("\n"+word);
+				out.print(word);
 	}
 
 	/**

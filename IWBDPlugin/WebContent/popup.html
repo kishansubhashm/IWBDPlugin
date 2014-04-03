@@ -6,6 +6,7 @@ body {
 	overflow-x: hidden;
 	font-family: Arial, sans-serif;
 	font-size: 12px;
+	//document.body.appendChild(overlay);
 }
 
 input,textarea {
@@ -20,15 +21,8 @@ input#save {
 <script src="javaScriptFiles/popup.js"></script>
 </head>
 
-<script>
-function closeIt()
-{
-event.returnValue = "Any string value here forces a dialog box to \
-appear before closing the window.";
-}
-</script>
 
-<body onbeforeunload="closeIt()">
+<body>
 	<form id="addbookmark">
 
 		<p>
@@ -40,7 +34,7 @@ appear before closing the window.";
 		<p>
 			<label for="enterTextHere">enterTextHere</label><br /> <input
 				type="text" id="enterTextHere" name="enterTextHere" size="50"
-				value="" onkeypress="13" />
+				value="" />
 		</p>
 
 		<p>
@@ -50,9 +44,13 @@ appear before closing the window.";
 			style="min-width: 357px; min-height: 2px; overflow-x: hidden; resize: none; autoscroll: true"
 			name="take_url" id="get_url"></textArea>
 	</form>
-	<!-- uncomment below div when all urls are need to be seen  -->
-	<div>URL List</div>
+	<form action=change()>
+	<button>click here</button>
+	</form>
+	<!-- uncomment below div when all urls are need to be seen and also uncomment lines of code in popup.js -->
+	<!-- <div>URL List</div>
 	<ul ID=urlList>
-	</ul>
+	</ul> -->
+	
 </body>
 </html>

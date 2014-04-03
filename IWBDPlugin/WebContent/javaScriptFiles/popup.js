@@ -41,21 +41,21 @@ function addBookmark() {
 				document.getElementById('enterTextHere').value="";
 				a=document.getElementById("summary").value;
 				b=xhr.responseText;
+				c="\nkishan";
 				//alert(b);
 				//alert(a+b);
 				statusDisplay.innerHTML =   a+b;
-
-				window.setTimeout(window.close, 60000);
 			} else {
 				// Show what went wrong
-				statusDisplay.innerHTML = document.getElementById("enterTextHere").value + xhr.statusText;
+				statusDisplay.innerHTML = "something went wrong..\nplease refresh your browser";
 			}
 		}
 	};
 
 	// Send the request and set status
+	
 	xhr.send(params);
-	statusDisplay.innerHTML = 'Sending...';
+	//statusDisplay.innerHTML = 'Sending...';
 }
 
 //When the popup HTML has loaded
@@ -67,7 +67,10 @@ window.addEventListener('load', function(evt) {
 	// Call the getPageInfo function in the background page, injecting
 	// content_script.js into the current HTML page and passing in our 
 	// onPageInfo function as the callback
-	chrome.extension.getBackgroundPage().getPageInfo(onPageInfo);
+	
+	
+	//chrome.extension.getBackgroundPage().getPageInfo(onPageInfo);
+	//above line is commented only because of the error on console
 });
 
 
@@ -76,25 +79,26 @@ chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}
 	//alert(tabs[0].url);
 	// console.log(tab[0].url);
 	//console.log(tab[0].title);
-	document.getElementById("get_url").innerHTML=tabs[0].title;
+	document.getElementById("get_url").innerHTML=tabs[0].url;
+	//document.getElementById("get_url").innerHTML=tabs[0].title;
 	setInterval(function(){getChat();},3000);	
 }
 );
 
-/*to view all tabs in the chrome*/
-chrome.tabs.getAllInWindow(null, function(tabs) {
-	tabs.forEach(function(tab){
-		myFunction(tab.title);  
-	});
-});
-
-function myFunction(tablink) {
-	//console.log(tablink);
-	var oNewNode = document.createElement("LI");
-	urlList.appendChild(oNewNode);
-	oNewNode.innerText=tablink;  
-}
-
+				/*to view all tabs in the chrome, uncomment below lines of code and also uncomment lines of code in popup.html*/
+//chrome.tabs.getAllInWindow(null, function(tabs) {
+//	tabs.forEach(function(tab){
+//		myFunction(tab.title);  
+//	});
+//});
+//
+//function myFunction(tablink) {
+//	//console.log(tablink);
+//	var oNewNode = document.createElement("LI");
+//	urlList.appendChild(oNewNode);
+//	oNewNode.innerText=tablink;  
+//}
+/* **********************************ends here*********************************** */
 
 
 function getChat() {
@@ -125,14 +129,20 @@ function getChat() {
 			if (xhr.status == 200) {
 				a=document.getElementById("summary").value;
 				b=xhr.responseText;
-				//alert(b);
-				//alert(a+b);
-				statusDisplay.innerHTML =   a+b;
-				// If it was a success, close the popup after a short delay
-				window.setTimeout(window.close, 60000);
+
+				if(xhr.responseText=="noNewMessages\n\n")
+					{
+						alert("from if : "+b);
+					}
+				else
+					{
+						alert("from else : "+b);
+						statusDisplay.innerHTML =   a+b;
+					}
+
 			} else {
 				// Show what went wrong
-				statusDisplay.innerHTML = document.getElementById("enterTextHere").value + xhr.statusText;
+				//statusDisplay.innerHTML = document.getElementById("enterTextHere").value + xhr.statusText;
 			}
 		}
 	};
@@ -141,3 +151,19 @@ function getChat() {
 	xhr.send(params);
 	//statusDisplay.innerHTML = 'Sending...';
 }
+
+
+function change()
+{
+	chrome.browserAction.setPopup({popup: "http://localhost:8080/IWBDPlugin/New.html"});
+	//window.location.href="New.html";
+	//chrome.browserAction.setPopup({popup: "http://localhost:8080/IWBDPlugin/New.html"});
+}
+
+
+/* to create a new tab */
+//chrome.tabs.create({'url':this.href, active: false }, function (tab) {
+//	  setTimeout(function () {
+//	    chrome.tabs.remove(tab.id);
+//	  }, 5000);
+//	});

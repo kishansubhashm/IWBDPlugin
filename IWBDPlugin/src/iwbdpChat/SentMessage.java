@@ -34,7 +34,7 @@ public class SentMessage extends HttpServlet {
 				//out.print(request.getParameter("ed")+request.getParameter("wrd"));
 				System.out.print("hi");
 				System.out.println("entered message"+request.getParameter("ed"));
-				out.print("\n"+request.getParameter("ed"));
+				out.println(request.getParameter("ed")+"\n");
 	}
 
 	/**
