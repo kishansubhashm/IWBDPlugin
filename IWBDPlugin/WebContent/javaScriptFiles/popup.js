@@ -47,7 +47,8 @@ function addBookmark() {
 				statusDisplay.innerHTML =   a+b;
 			} else {
 				// Show what went wrong
-				statusDisplay.innerHTML = "something went wrong..\nplease refresh your browser";
+				document.getElementById('enterTextHere').value="";
+				statusDisplay.innerHTML = a+b+"something went wrong..\nplease check your net connection...";
 			}
 		}
 	};
