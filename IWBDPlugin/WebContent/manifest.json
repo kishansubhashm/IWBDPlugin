@@ -3,19 +3,26 @@
     "name": "Interactive Web Browsing Plugin",
     "description": "better than the best",
     "version": "0.1",
-    //"background": {
-    //    "scripts": ["javaScriptFiles/background.js"],
-    //    "persistent": true
-    //},
+    "background": {
+        "scripts": ["javaScriptFiles/background.js"],
+        "persistent": true
+    },
     "browser_action": {
         "default_icon": "images/icon.png",
         "default_popup": "popup.html"
     },
+    "web_accessible_resources": [
+    "chrome_ex_oauth.html",
+    "chrome_ex_oauthsimple.html",
+    "path/to/callback_page.html"
+
+  ],
     "permissions": [
         "tabs", 
         "http://*/", 
         "https://*/",
 	 "http://www.google.com/",
-  "https://www.google.com/"
+  "https://www.google.com/",
+  "http://ajax.googleapis.com"
     ]
 }

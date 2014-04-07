@@ -154,12 +154,36 @@ function getChat() {
 }
 
 
+document.addEventListener('DOMContentLoaded', function () {
+	document.getElementById('logout').addEventListener('click', change);
+	});
+
 function change()
 {
-	chrome.browserAction.setPopup({popup: "http://localhost:8080/IWBDPlugin/New.html"});
+	alert("lolz");
+	//var popwin = chrome.browserAction.setPopup({popup: "New.html"});
+	//var popwin = window.open("https://mail.google.com/mail/u/0/?logout&hl=en");
+	//setTimeout(function(){popwin.close(); window.location.href='http://1-dot-iwb-auth-01.appspot.com';},100);
 	//window.location.href="New.html";
 	//chrome.browserAction.setPopup({popup: "http://localhost:8080/IWBDPlugin/New.html"});
+	 
+	 
+	 //chrome.browserAction.onClicked.addListener(function() {
+		//   chrome.windows.create({'url': 'https://mail.google.com/mail/u/0/?logout&hl=en', 'type': 'popup'}, function(window) {
+		  // });
+		//});
+	 
+	 
 }
+
+
+
+$(window).bind('beforeunload', function() {
+    if (iWantTo) {
+        return "Don't leave me!";
+    }
+}); 
+
 
 
 /* to create a new tab */

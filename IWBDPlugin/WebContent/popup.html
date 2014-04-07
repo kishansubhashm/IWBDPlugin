@@ -6,7 +6,9 @@ body {
 	overflow-x: hidden;
 	font-family: Arial, sans-serif;
 	font-size: 12px;
-	//document.body.appendChild(overlay);
+	//
+	document
+	.body.appendChild(overlay);
 }
 
 input,textarea {
@@ -18,16 +20,20 @@ input#save {
 	width: auto;
 }
 </style>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
 <script src="javaScriptFiles/popup.js"></script>
 </head>
-
-
 <body>
+	<form action=change()>
+		<button id="logout">logout</button>
+	</form>
 	<form id="addbookmark">
 
 		<p>
-			<label for="summary">Summary</label><br />
-			<textarea id="summary" name="summary" rows="6" cols="35"></textarea>
+			<label for="summary">Summary</label><br /> <img
+				src="https://lh6.googleusercontent.com/-kazYqwVU0ow/AAAAAAAAAAI/AAAAAAAAABk/Y2GTXgZI6hQ/photo.jpg?sz=50">
+			<textarea id="summary" name="summary" rows="6" cols="35">
+			</textarea>
 		</p>
 
 
@@ -44,13 +50,10 @@ input#save {
 			style="min-width: 357px; min-height: 2px; overflow-x: hidden; resize: none; autoscroll: true"
 			name="take_url" id="get_url"></textArea>
 	</form>
-	<form action=change()>
-	<button>click here</button>
-	</form>
 	<!-- uncomment below div when all urls are need to be seen and also uncomment lines of code in popup.js -->
 	<!-- <div>URL List</div>
 	<ul ID=urlList>
 	</ul> -->
-	
+
 </body>
 </html>
