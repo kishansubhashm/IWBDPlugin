@@ -35,7 +35,7 @@ public class TestMessage extends HttpServlet {
 				PrintWriter out = response.getWriter();
 				System.out.println("in retrieve messages");
 //				Scanner sc=new Scanner(System.in);
-				String word="yesNewMessages\n\n";
+				String word="noNewMessages\n\n";
 //				System.out.println(request.getParameter("title"));
 //				System.out.println("from RetrieveMessages servlet");
 //				System.out.print("enter any word :");

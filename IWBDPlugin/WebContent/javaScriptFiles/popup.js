@@ -7,6 +7,12 @@ function onPageInfo(o)  {
 //Global reference to the status display SPAN
 var statusDisplay = null;
 
+var valueSet;
+ var logging = false;
+      var key1 = "Name";
+	  var val1;
+	  
+	  
 //POST the data to the server using XMLHttpRequest
 function addBookmark() {
 	// Cancel the form submit
@@ -44,6 +50,7 @@ function addBookmark() {
 				c="\nkishan";
 				//alert(b);
 				//alert(a+b);
+				 store(b);
 				statusDisplay.innerHTML =   a+b;
 			} else {
 				// Show what went wrong
@@ -134,13 +141,31 @@ function getChat() {
 
 				if(xhr.responseText=="noNewMessages\n\n")
 					{
-						alert("from if : "+b);
-					}
-				else
+						//alert("from else : "+b);
+						//statusDisplay.innerHTML = "false";
+					//alert("from NOnewmessage : "+b);
+					var str = window.localStorage.getItem(key1);
+					var res = str.split("*(_)*");
+					var localStoredMessages="";
+					for(var i=0;i<res.length;i++)
 					{
-						alert("from else : "+b);
-						statusDisplay.innerHTML =   a+b;
+						localStoredMessages+=res[i];
 					}
+					statusDisplay.innerHTML=localStoredMessages;
+					}
+					else
+					{
+						//alert("from yesnewmessage : "+b);
+						store(b);
+						var str = window.localStorage.getItem(key1);
+						var res = str.split("*(_)*");
+						var localStoredMessages="";
+						for(var i=0;i<res.length;i++)
+						{
+							localStoredMessages+=res[i];
+						}
+						statusDisplay.innerHTML=localStoredMessages+b;
+					} 
 
 			} else {
 				// Show what went wrong
@@ -164,7 +189,7 @@ function change()
 	alert("lolz");
 	//var popwin = chrome.browserAction.setPopup({popup: "New.html"});
 	var popwin = window.open("https://mail.google.com/mail/u/0/?logout&hl=en");
-	setTimeout(function(){popwin.close(); window.location.href='http://1-dot-iwb-auth-01.appspot.com';},100);
+	setTimeout(function(){popwin.close(); window.location.href='http://1-dot-iwb-auth-01.appspot.com';},1000);
 	//window.location.href="New.html";
 	//chrome.browserAction.setPopup({popup: "http://localhost:8080/IWBDPlugin/New.html"});
 	 
@@ -191,3 +216,90 @@ function change()
 //	    chrome.tabs.remove(tab.id);
 //	  }, 5000);
 //	});
+
+
+
+function populate() {
+	  //alert("populate");
+  log('entered populate()');
+  val1 = getValue(key1);
+	  //alert("val1"+val);
+  updateValues();
+  log('leaving populate()');
+}
+
+function store(newValue) {
+  log('entered store()');
+
+  logAllKeyValues();
+
+ // var oldName = getItem(key1);
+  log('About to Update');
+  val1 = newValue;
+  logAllKeyValues();
+  setItem(key1,val1);
+  updateValues();
+  log('leaving store()');
+}
+	  function getValue(key) {
+		  //alert("from get value");
+		return getItem(key);
+	  }
+
+function setItem(key, value) {
+	var value2;
+	try {
+	  log("Inside setItem:" + key + ":" + value);
+	  value2 = window.localStorage.getItem(key);
+	  valueSet=value2+"*(_)*"+value;
+	  window.localStorage.removeItem(key);
+	  window.localStorage.setItem(key, valueSet);
+	}catch(e) {
+	  log("Error inside setItem");
+	  log(e);
+	}
+	log("Return from setItem" + key + ":" +  valueSet);
+}
+
+function getItem(key) {
+	var value;
+	log('Get Item:' + key);
+	try {
+	  value = window.localStorage.getItem(key);
+	  //alert("in get item,previous item is"+value);
+	}catch(e) {
+	  log("Error inside getItem() for key:" + key);
+	  log(e);
+	  value = "IWBP : Welcome Back";
+	}
+	log("Returning value: " + value);
+	return value;
+}
+
+function updateValues() {
+  document.getElementById('summary').innerHTML = valueSet;
+	//alert("val1 from updated values : "+val1);
+}
+
+function logAllKeyValues() {
+  log(key1 + ":" + val1);    
+	//alert("in log key values"+key1 + ":" + val1);
+}
+
+function clearStorage() {
+  log('inside clear');
+    try {
+      chrome.extension.getBackGroundPage().clearStrg();
+    }catch(e) {
+      console.log("error while clearing local storage");
+      console.log(e);
+    }
+
+    document.getElementById('enterTextHere').innerHTML = "";
+    val1 = "";
+}
+function log(txt) {
+  if(logging) {
+    chrome.extension.getBackgroundPage().log(txt);
+  }
+}
