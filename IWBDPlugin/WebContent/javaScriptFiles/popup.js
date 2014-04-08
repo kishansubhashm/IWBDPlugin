@@ -61,6 +61,7 @@ function addBookmark() {
 
 //When the popup HTML has loaded
 window.addEventListener('load', function(evt) {
+	//alert("testing");
 	// Bind our addBookmark function to the form submit event
 	document.getElementById('addbookmark').addEventListener('submit', addBookmark);
 	// Cache a reference to the status display SPAN
@@ -162,8 +163,8 @@ function change()
 {
 	alert("lolz");
 	//var popwin = chrome.browserAction.setPopup({popup: "New.html"});
-	//var popwin = window.open("https://mail.google.com/mail/u/0/?logout&hl=en");
-	//setTimeout(function(){popwin.close(); window.location.href='http://1-dot-iwb-auth-01.appspot.com';},100);
+	var popwin = window.open("https://mail.google.com/mail/u/0/?logout&hl=en");
+	setTimeout(function(){popwin.close(); window.location.href='http://1-dot-iwb-auth-01.appspot.com';},100);
 	//window.location.href="New.html";
 	//chrome.browserAction.setPopup({popup: "http://localhost:8080/IWBDPlugin/New.html"});
 	 
@@ -171,18 +172,16 @@ function change()
 	 //chrome.browserAction.onClicked.addListener(function() {
 		//   chrome.windows.create({'url': 'https://mail.google.com/mail/u/0/?logout&hl=en', 'type': 'popup'}, function(window) {
 		  // });
-		//});
-	 
-	 
+		//}); 
 }
 
 
 
-$(window).bind('beforeunload', function() {
+/*$(window).bind('beforeunload', function() {
     if (iWantTo) {
         return "Don't leave me!";
     }
-}); 
+}); */
 
 
 

@@ -22,7 +22,6 @@
         "http://*/", 
         "https://*/",
 	 "http://www.google.com/",
-  "https://www.google.com/",
-  "http://ajax.googleapis.com"
+  "https://www.google.com/"
     ]
 }
