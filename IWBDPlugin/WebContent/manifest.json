@@ -5,7 +5,7 @@
     "version": "0.1",
     "background": {
         "scripts": ["javaScriptFiles/background.js"],
-        "persistent": true
+        "persistent": true//scope until browser closed from time of open
     },
     "browser_action": {
         "default_icon": "images/icon.png",

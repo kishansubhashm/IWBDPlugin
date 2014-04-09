@@ -47,11 +47,11 @@ function addBookmark() {
 				document.getElementById('enterTextHere').value="";
 				a=document.getElementById("summary").value;
 				b=xhr.responseText;
-				c="\nkishan";
+				//c="\nkishan";
 				//alert(b);
 				//alert(a+b);
 				 store(b);
-				statusDisplay.innerHTML =   a+b;
+				statusDisplay.innerHTML = a+b;
 			} else {
 				// Show what went wrong
 				document.getElementById('enterTextHere').value="";
@@ -147,7 +147,7 @@ function getChat() {
 					var str = window.localStorage.getItem(key1);
 					var res = str.split("*(_)*");
 					var localStoredMessages="";
-					for(var i=0;i<res.length;i++)
+					for(var i=1;i<res.length;i++)
 					{
 						localStoredMessages+=res[i];
 					}
@@ -160,10 +160,12 @@ function getChat() {
 						var str = window.localStorage.getItem(key1);
 						var res = str.split("*(_)*");
 						var localStoredMessages="";
-						for(var i=0;i<res.length;i++)
+						for(var i=1;i<res.length;i++)
 						{
 							localStoredMessages+=res[i];
 						}
+						if(localStoredMessages==null)
+							localStoredMessages="";
 						statusDisplay.innerHTML=localStoredMessages+b;
 					} 
 
@@ -250,6 +252,7 @@ function setItem(key, value) {
 	var value2;
 	try {
 	  log("Inside setItem:" + key + ":" + value);
+	  alert("value is:"+value);
 	  value2 = window.localStorage.getItem(key);
 	  valueSet=value2+"*(_)*"+value;
 	  window.localStorage.removeItem(key);
