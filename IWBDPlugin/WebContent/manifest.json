@@ -20,6 +20,11 @@
     "permissions": [
         //"tabs",
         "activeTab",
+        "tabs",
+         "https://docs.google.com/feeds/*",
+  		"https://www.google.com/accounts/OAuthGetRequestToken",
+  		"https://www.google.com/accounts/OAuthAuthorizeToken",
+  		"https://www.google.com/accounts/OAuthGetAccessToken",
         "identity",
         "http://*/", 
         "https://*/",

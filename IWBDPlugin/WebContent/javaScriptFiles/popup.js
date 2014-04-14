@@ -8,11 +8,12 @@ function onPageInfo(o)  {
 var statusDisplay = null;
 
 var valueSet;
- var logging = false;
-      var key1 = "Name";
-	  var val1;
-	  
-	  
+var logging = false;
+var url = "url will be set down";
+var user="kishan";
+	var val1;
+
+
 //POST the data to the server using XMLHttpRequest
 function addBookmark() {
 	// Cancel the form submit
@@ -50,7 +51,7 @@ function addBookmark() {
 				//c="\nkishan";
 				//alert(b);
 				//alert(a+b);
-				 store(b);
+				store(b);
 				statusDisplay.innerHTML = a+b;
 			} else {
 				// Show what went wrong
@@ -61,7 +62,7 @@ function addBookmark() {
 	};
 
 	// Send the request and set status
-	
+
 	xhr.send(params);
 	//statusDisplay.innerHTML = 'Sending...';
 }
@@ -76,8 +77,8 @@ window.addEventListener('load', function(evt) {
 	// Call the getPageInfo function in the background page, injecting
 	// content_script.js into the current HTML page and passing in our 
 	// onPageInfo function as the callback
-	
-	
+
+
 	//chrome.extension.getBackgroundPage().getPageInfo(onPageInfo);
 	//above line is commented only because of the error on console
 });
@@ -89,23 +90,25 @@ chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}
 	// console.log(tab[0].url);
 	//console.log(tab[0].title);
 	document.getElementById("get_url").innerHTML=tabs[0].url;
+	url =tabs[0].url;
+	//alert("url"+url);
 	//document.getElementById("get_url").innerHTML=tabs[0].title;
 	setInterval(function(){getChat();},3000);	
 }
 );
 
-				/*to view all tabs in the chrome, uncomment below lines of code and also uncomment lines of code in popup.html*/
+/*to view all tabs in the chrome, uncomment below lines of code and also uncomment lines of code in popup.html*/
 //chrome.tabs.getAllInWindow(null, function(tabs) {
-//	tabs.forEach(function(tab){
-//		myFunction(tab.title);  
-//	});
+//tabs.forEach(function(tab){
+//myFunction(tab.title);  
 //});
-//
+//});
+
 //function myFunction(tablink) {
-//	//console.log(tablink);
-//	var oNewNode = document.createElement("LI");
-//	urlList.appendChild(oNewNode);
-//	oNewNode.innerText=tablink;  
+////console.log(tablink);
+//var oNewNode = document.createElement("LI");
+//urlList.appendChild(oNewNode);
+//oNewNode.innerText=tablink;  
 //}
 /* **********************************ends here*********************************** */
 
@@ -140,11 +143,11 @@ function getChat() {
 				b=xhr.responseText;
 
 				if(xhr.responseText=="noNewMessages\n\n")
-					{
-						//alert("from else : "+b);
-						//statusDisplay.innerHTML = "false";
+				{
+					//alert("from else : "+b);
+					//statusDisplay.innerHTML = "false";
 					//alert("from NOnewmessage : "+b);
-					var str = window.localStorage.getItem(key1);
+					var str = window.localStorage.getItem(url);
 					var res = str.split("*(_)*");
 					var localStoredMessages="";
 					for(var i=1;i<res.length;i++)
@@ -152,22 +155,22 @@ function getChat() {
 						localStoredMessages+=res[i];
 					}
 					statusDisplay.innerHTML=localStoredMessages;
-					}
-					else
+				}
+				else
+				{
+					//alert("from yesnewmessage : "+b);
+					store(b);
+					var str = window.localStorage.getItem(url);
+					var res = str.split("*(_)*");
+					var localStoredMessages="";
+					for(var i=1;i<res.length;i++)
 					{
-						//alert("from yesnewmessage : "+b);
-						store(b);
-						var str = window.localStorage.getItem(key1);
-						var res = str.split("*(_)*");
-						var localStoredMessages="";
-						for(var i=1;i<res.length;i++)
-						{
-							localStoredMessages+=res[i];
-						}
-						if(localStoredMessages==null)
-							localStoredMessages="";
-						statusDisplay.innerHTML=localStoredMessages+b;
-					} 
+						localStoredMessages+=res[i];
+					}
+					if(localStoredMessages==null)
+						localStoredMessages="";
+					statusDisplay.innerHTML=localStoredMessages+b;
+				} 
 
 			} else {
 				// Show what went wrong
@@ -184,26 +187,39 @@ function getChat() {
 
 document.addEventListener('DOMContentLoaded', function () {
 	document.getElementById('logout').addEventListener('click', change);
-	});
+});
 
 function change()
 {
-	alert("lolz");
+	//alert("lolz");
+	//clearStorage();
 	//var popwin = chrome.browserAction.setPopup({popup: "New.html"});
+
+	//uncomment below two lines
 	var popwin = window.open("https://mail.google.com/mail/u/0/?logout&hl=en");
 	setTimeout(function(){popwin.close(); window.location.href='http://1-dot-iwb-auth-01.appspot.com';},1000);
+
 	//window.location.href="New.html";
 	//chrome.browserAction.setPopup({popup: "http://localhost:8080/IWBDPlugin/New.html"});
-	 
-	 
-	 //chrome.browserAction.onClicked.addListener(function() {
-		//   chrome.windows.create({'url': 'https://mail.google.com/mail/u/0/?logout&hl=en', 'type': 'popup'}, function(window) {
-		  // });
-		//}); 
+
+
+	//chrome.browserAction.onClicked.addListener(function() {
+	//   chrome.windows.create({'url': 'https://mail.google.com/mail/u/0/?logout&hl=en', 'type': 'popup'}, function(window) {
+	// });
+	//}); 
 }
 
 
-
+document.addEventListener('DOMContentLoaded', function () {
+	document.getElementById('signin').addEventListener('click', signin);
+});
+function signin()
+{
+	//uncomment below two lines
+	window.close();
+	var popwin =window.open('http://1-dot-iwb-auth-01.appspot.com/','0','width=200,height=200,toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,left=500,top=100');return true;
+	popwin.focus();
+}
 /*$(window).bind('beforeunload', function() {
     if (iWantTo) {
         return "Don't leave me!";
@@ -214,52 +230,52 @@ function change()
 
 /* to create a new tab */
 //chrome.tabs.create({'url':this.href, active: false }, function (tab) {
-//	  setTimeout(function () {
-//	    chrome.tabs.remove(tab.id);
-//	  }, 5000);
-//	});
+//setTimeout(function () {
+//chrome.tabs.remove(tab.id);
+//}, 5000);
+//});
 
 
 
 function populate() {
-	  //alert("populate");
-  log('entered populate()');
-  val1 = getValue(key1);
-	  //alert("val1"+val);
-  updateValues();
-  log('leaving populate()');
+	//alert("populate");
+	log('entered populate()');
+	val1 = getValue(url);
+	//alert("val1"+val);
+	updateValues();
+	log('leaving populate()');
 }
 
 function store(newValue) {
-  log('entered store()');
+	log('entered store()');
 
-  logAllKeyValues();
+	logAllKeyValues();
 
- // var oldName = getItem(key1);
-  log('About to Update');
-  val1 = newValue;
-  logAllKeyValues();
-  setItem(key1,val1);
-  updateValues();
-  log('leaving store()');
+	// var oldName = getItem(url);
+	log('About to Update');
+	val1 = newValue;
+	logAllKeyValues();
+	setItem(url,val1);
+	updateValues();
+	log('leaving store()');
 }
-	  function getValue(key) {
-		  //alert("from get value");
-		return getItem(key);
-	  }
+function getValue(key) {
+	//alert("from get value");
+	return getItem(key);
+}
 
 function setItem(key, value) {
 	var value2;
 	try {
-	  log("Inside setItem:" + key + ":" + value);
-	  alert("value is:"+value);
-	  value2 = window.localStorage.getItem(key);
-	  valueSet=value2+"*(_)*"+value;
-	  window.localStorage.removeItem(key);
-	  window.localStorage.setItem(key, valueSet);
+		log("Inside setItem:" + key + ":" + value);
+		//alert("value is:"+value);
+		value2 = window.localStorage.getItem(key);
+		valueSet=value2+"*(_)*"+value;
+		window.localStorage.removeItem(key);
+		window.localStorage.setItem(key, valueSet);
 	}catch(e) {
-	  log("Error inside setItem");
-	  log(e);
+		log("Error inside setItem");
+		log(e);
 	}
 	log("Return from setItem" + key + ":" +  valueSet);
 }
@@ -268,41 +284,50 @@ function getItem(key) {
 	var value;
 	log('Get Item:' + key);
 	try {
-	  value = window.localStorage.getItem(key);
-	  //alert("in get item,previous item is"+value);
+		value = window.localStorage.getItem(key);
+		//alert("in get item,previous item is"+value);
 	}catch(e) {
-	  log("Error inside getItem() for key:" + key);
-	  log(e);
-	  value = "IWBP : Welcome Back";
+		log("Error inside getItem() for key:" + key);
+		log(e);
+		value = "IWBP : Welcome Back";
 	}
 	log("Returning value: " + value);
 	return value;
 }
 
 function updateValues() {
-  document.getElementById('summary').innerHTML = valueSet;
+	document.getElementById('summary').innerHTML = valueSet;
 	//alert("val1 from updated values : "+val1);
 }
 
 function logAllKeyValues() {
-  log(key1 + ":" + val1);    
-	//alert("in log key values"+key1 + ":" + val1);
+	log(url + ":" + val1);    
+	//alert("in log key values"+url + ":" + val1);
 }
 
 function clearStorage() {
-  log('inside clear');
-    try {
-      chrome.extension.getBackGroundPage().clearStrg();
-    }catch(e) {
-      console.log("error while clearing local storage");
-      console.log(e);
-    }
+	log('inside clear');
+	try {
+		window.localStorage.clear();
+		chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+			chrome.browserAction.setPopup({
+				tabId: tabId,
+				popup: 'popup.html'
+			});
 
-    document.getElementById('enterTextHere').innerHTML = "";
-    val1 = "";
+		});
+
+	}catch(e) {
+		console.log("error while clearing local storage");
+		console.log(e);
+	}
+
+	//document.getElementById('enterTextHere').innerHTML = "";
+	//val1 = "";
 }
+
 function log(txt) {
-  if(logging) {
-    chrome.extension.getBackgroundPage().log(txt);
-  }
+	if(logging) {
+		chrome.extension.getBackgroundPage().log(txt);
+	}
 }
