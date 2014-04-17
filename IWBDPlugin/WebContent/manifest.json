@@ -1,13 +1,15 @@
 {
-    "manifest_version": 2,
+     "manifest_version": 2, 
     "name": "Interactive Web Browsing Plugin",
     "description": "better than the best",
     "version": "0.1",
     "background": {
-        "scripts": ["javaScriptFiles/background.js"],
+        "scripts": ["javaScriptFiles/background.js","javaScriptFiles/jquery.js"],
         "persistent": true//scope until browser closed from time of open
+        //"page": "background.html"
     },
     "browser_action": {
+    "default_title": "Interactive Web Browsing Plugin",
         "default_icon": "images/icon.png",
         "default_popup": "popup.html"
     },

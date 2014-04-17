@@ -1,3 +1,5 @@
+
+
 //This callback function is called when the content script has been 
 //injected and returned its results
 function onPageInfo(o)  { 
@@ -9,50 +11,49 @@ var statusDisplay = null;
 
 var valueSet;
 var logging = false;
-var url = "url will be set down";
-var user="kishan";
-	var val1;
+var uid="1432232";
+var url = "url";
+var uname="pepper32";
+var val1;
 
-
+var prev;
 //POST the data to the server using XMLHttpRequest
 function addBookmark() {
 	// Cancel the form submit
 	event.preventDefault();
-
 	// The URL to POST our data to
-	var postUrl = "http://localhost:8080/IWBDPlugin/SentMessage?wrd="+document.getElementById('summary').value+"&ed="+document.getElementById('enterTextHere').value;
-
+	//var postUrl = "http://localhost:8080/IWBDPlugin/SentMessage?wrd="+document.getElementById('summary').value+"&ed="+document.getElementById('enterTextHere').value;
+	var postUrl = "http://meher.jelastic.elastx.net/Final/AuthenticationServlet?uid="+uid+"&url="+url+"&uname="+uname+"&mes="+document.getElementById('enterTextHere').value+"&status=true";//?wrd="+document.getElementById('summary').value+"&ed="+document.getElementById('enterTextHere').value;
 	// Set up an asynchronous AJAX POST request
 	var xhr = new XMLHttpRequest();
 	xhr.open('get', postUrl, true);
-
 	// Prepare the data to be POSTed
-
 	var post = encodeURIComponent(document.getElementById('enterTextHere').value);
 	// var summary = encodeURIComponent(document.getElementById('summary').value);
-
 	var params = post;
-
-
-
 	// Set correct header for form data 
 	xhr.setRequestHeader('Content-type', 'multipart/form-data');
-
 	// Handle request state change events
 	xhr.onreadystatechange = function() { 
 		// If the request completed
 		if (xhr.readyState == 4) {
 			//statusDisplay.innerHTML = '';
 			if (xhr.status == 200) {
-				// If it was a success, close the popup after a short delay
-				document.getElementById('enterTextHere').value="";
+
 				a=document.getElementById("summary").value;
+				statusDisplay.innerHTML = a+"\n"+uname+":"+document.getElementById('enterTextHere').value;
+				// a+"\n"+uname+":"+document.getElementById('enterTextHere').value;
 				b=xhr.responseText;
+				if(prev!=b)
+					prev=b;
 				//c="\nkishan";
 				//alert(b);
 				//alert(a+b);
-				store(b);
-				statusDisplay.innerHTML = a+b;
+				//store(b);
+				//statusDisplay.innerHTML = a+"\n"+uname+":"+document.getElementById('enterTextHere').value;
+				document.getElementById('enterTextHere').value="";
+				alert("message sent sucessfully"+b);
+				
 			} else {
 				// Show what went wrong
 				document.getElementById('enterTextHere').value="";
@@ -60,25 +61,34 @@ function addBookmark() {
 			}
 		}
 	};
-
 	// Send the request and set status
-
 	xhr.send(params);
 	//statusDisplay.innerHTML = 'Sending...';
 }
+
+/**********************************/
+function sendMsg(){
+	var servlet_url="http://www.google.com?q="+document.getElementById('enterTextHere').value;
+	console.log(servlet_url);
+	$.get(servlet_url,function(resp){
+		console.log(resp);
+	});
+}
+/**********************************/
+
+
 
 //When the popup HTML has loaded
 window.addEventListener('load', function(evt) {
 	//alert("testing");
 	// Bind our addBookmark function to the form submit event
 	document.getElementById('addbookmark').addEventListener('submit', addBookmark);
+	//document.getElementById('addbookmark').addEventListener('submit', sendMsg);
 	// Cache a reference to the status display SPAN
 	statusDisplay = document.getElementById('summary');
 	// Call the getPageInfo function in the background page, injecting
 	// content_script.js into the current HTML page and passing in our 
 	// onPageInfo function as the callback
-
-
 	//chrome.extension.getBackgroundPage().getPageInfo(onPageInfo);
 	//above line is commented only because of the error on console
 });
@@ -89,13 +99,19 @@ chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}
 	//alert(tabs[0].url);
 	// console.log(tab[0].url);
 	//console.log(tab[0].title);
+	//alert("last name : "+window.localStorage.getItem("lastname"));
+	//alert("testing"+localStorage.app_isLoggedIn);
+	//alert("window last name:"+window.localStorage.getItem("lastname"));
+	//document.getElementById("result").innerHTML=chrome.storage.local.get("lastname");
 	document.getElementById("get_url").innerHTML=tabs[0].url;
 	url =tabs[0].url;
 	//alert("url"+url);
 	//document.getElementById("get_url").innerHTML=tabs[0].title;
-	setInterval(function(){getChat();},3000);	
+	//getEmpty();
+	setInterval(function(){getChat();},10000);	
 }
 );
+
 
 /*to view all tabs in the chrome, uncomment below lines of code and also uncomment lines of code in popup.html*/
 //chrome.tabs.getAllInWindow(null, function(tabs) {
@@ -112,14 +128,136 @@ chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT}
 //}
 /* **********************************ends here*********************************** */
 
+function getEmpty() {
+	// Cancel the form submit
+	// event.preventDefault();
+
+	// The URL to POST our data to
+	//alert("from getEmpty");
+	//alert("url"+url);
+	//alert("uid"+uid);
+	//alert("uname"+uname);
+	var postUrl = "http://meher.jelastic.elastx.net/Final/AuthenticationServlet?uid="+uid+"&url="+url+"&uname="+uname+"&mes="+""+"&status=true";//?wrd="+document.getElementById('summary').value+"&ed="+document.getElementById('enterTextHere').value;
+	//postUrl="http://meher.jelastic.elastx.net/Final/AuthenticationServlet?uid=977&url=http%3A%2F%2Fwww.miki.com%2F&uname=kunny&mes=im+kunny&status=true";
+	//http://meher.jelastic.elastx.net/final2/AuthenticationServlet?uid=667&url=http%3A%2F%2Fwww.wiki.com%2F&uname=munny&mes=&status=true
+	// Set up an asynchronous AJAX POST request
+	var xhr = new XMLHttpRequest();
+	xhr.open('get', postUrl, true);
+
+	// Prepare the data to be POSTed
+
+	var post = encodeURIComponent(document.getElementById('enterTextHere').value);
+	// var summary = encodeURIComponent(document.getElementById('summary').value);
+
+	var params = post;
+	// Set correct header for form data 
+	xhr.setRequestHeader('Content-type', 'multipart/form-data');
+
+	// Handle request state change events
+	xhr.onreadystatechange = function() { 
+		// If the request completed
+		if (xhr.readyState == 4) {
+			//statusDisplay.innerHTML = '';
+			if (xhr.status == 200) {
+
+				//alert("last name:"+window.localStorage.getItem("lastname"));
+				a=document.getElementById("summary").value;
+				b=xhr.responseText;	
+				//alert("response is:"+xhr.responseText);
+				if(xhr.responseText=="noNewMessages\n\n")
+				{
+					//alert("from else : "+b);
+					//statusDisplay.innerHTML = "false";
+					//alert("from NOnewmessage : "+b);
+					alert("direct response:"+xhr.responseText);
+					var rcvd=JSON.parse(xhr.responseText);
+
+					var txt = '{"employees":[' +
+					'{"firstName":"John","lastName":"Doe" },' +
+					'{"firstName":"Anna","lastName":"Smith" },' +
+					'{"firstName":"Peter","lastName":"Jones" }]}';
+					var obj = eval ("(" + txt + ")");
+					alert("firstname: "+obj.employees[1].firstName);
+
+					alert(rcvd);
+					JSON.stringify(rcvd);
+					alert("after stringyfy"+rcvd);
+					//alert(rcvd.messages);
+					var coma = rcvd.split(",");
+
+					var GotMessages="";
+					alert("coma.length"+coma.length);
+					for(var i=1;i<coma.length;i++)
+					{
+						GotMessages+=coma[i];
+						alert(GotMessages);
+					}
+
+					/*var str = window.localStorage.getItem(url);
+					var res = str.split("*(_)*");
+					var localStoredMessages="";
+					for(var i=1;i<res.length;i++)
+					{
+						localStoredMessages+=res[i];
+					}*/
+
+					statusDisplay.innerHTML=GotMessages;
+				}
+				else
+				{
+					//alert("from yesnewmessage : "+b);
+					//store(b);
+					var str = window.localStorage.getItem(url);
+					//var res = str.split("*(_)*");
+					var localStoredMessages="";
+
+					//alert("direct response:"+xhr.responseText);
+					var rcvd=xhr.responseText;
+					var obj=JSON.parse(rcvd);
+					//alert("after parsing: "+obj.Messages);
+					if(obj.Messages=="")
+					{
+						//alert("from no reply getEmpty: "+obj.Messages);
+					}
+					else if(obj.Messages!="")
+					{
+						var coma = obj.Messages.split(",");
+						var GotMessages="";
+						//alert("coma.length"+coma.length);
+
+						GotMessages=coma[1];
+						
+						for(var i=2;i<coma.length;i++)
+						{
+								GotMessages+="\n"+coma[i];
+								//store(GotMessages);//storing in local storage
+						}
+						console.log(GotMessages);
+						statusDisplay.innerHTML=GotMessages;
+					}
+				} 
+
+			} else {
+				// Show what went wrong
+				//statusDisplay.innerHTML = document.getElementById("enterTextHere").value + xhr.statusText;
+				alert("something went wrong for first messgaes");
+			}
+		}
+	};
+
+	// Send the request and set status
+	xhr.send(params);
+	//statusDisplay.innerHTML = 'Sending...';
+}
+
 
 function getChat() {
 	// Cancel the form submit
 	// event.preventDefault();
 
 	// The URL to POST our data to
-	var postUrl = "http://localhost:8080/IWBDPlugin/TestMessage";//?wrd="+document.getElementById('summary').value+"&ed="+document.getElementById('enterTextHere').value;
-
+	//var postUrl = "http://localhost:8080/IWBDPlugin/TestMessage";//?wrd="+document.getElementById('summary').value+"&ed="+document.getElementById('enterTextHere').value;
+	var postUrl = "http://meher.jelastic.elastx.net/Final/AuthenticationServlet?uid="+uid+"&url="+url+"&uname="+uname+"&mes="+""+"&status=true";
 	// Set up an asynchronous AJAX POST request
 	var xhr = new XMLHttpRequest();
 	xhr.open('get', postUrl, true);
@@ -141,7 +279,11 @@ function getChat() {
 			if (xhr.status == 200) {
 				a=document.getElementById("summary").value;
 				b=xhr.responseText;
-
+				if(prev!=b)
+					prev = b;
+				else
+					return;
+				console.log("message recieved.."+b);
 				if(xhr.responseText=="noNewMessages\n\n")
 				{
 					//alert("from else : "+b);
@@ -159,7 +301,7 @@ function getChat() {
 				else
 				{
 					//alert("from yesnewmessage : "+b);
-					store(b);
+					/*store(b);
 					var str = window.localStorage.getItem(url);
 					var res = str.split("*(_)*");
 					var localStoredMessages="";
@@ -169,7 +311,60 @@ function getChat() {
 					}
 					if(localStoredMessages==null)
 						localStoredMessages="";
-					statusDisplay.innerHTML=localStoredMessages+b;
+					statusDisplay.innerHTML=localStoredMessages+b;*/
+
+
+					
+
+					//alert("from yesnewmessage : "+b);
+					//store(b);
+					var str = window.localStorage.getItem(url);
+					//var res = str.split("*(_)*");
+					var localStoredMessages="";
+
+					//alert("direct response:"+xhr.responseText);
+					var rcvd=xhr.responseText;
+					var obj=JSON.parse(rcvd);
+					//alert("after parsing: "+"test"+obj.Messages+"ends");
+					if(obj.Messages=="")
+					{
+						//alert("from no reply getChat: "+obj.Messages);
+					}
+					else if(obj.Messages!=""||obj.Messages.length>0)
+					{
+
+
+						/*var str = window.localStorage.getItem(url);
+						var res = str.split("*(_)*");
+						var localStoredMessages="";
+						for(var i=1;i<res.length;i++)
+						{
+							localStoredMessages+=res[i];
+							//store(localStoredMessages);
+						}
+						if(localStoredMessages==null)
+							localStoredMessages="";
+						statusDisplay.innerHTML=localStoredMessages+b;*/
+
+
+						var coma = obj.Messages.split(",");
+
+						var GotMessages="";
+						//console.log("coma.length"+coma.length);
+
+						GotMessages+=coma[1];
+						for(var i=2;i<coma.length;i++)
+						{
+							GotMessages+="\n"+coma[i];
+							//store(GotMessages);//storing in local storage
+						}
+						var inhtml = statusDisplay.innerHTML;
+						
+						statusDisplay.innerHTML = "";
+						statusDisplay.innerHTML = inhtml+"\n" + GotMessages;
+
+					}
+
 				} 
 
 			} else {
@@ -181,6 +376,7 @@ function getChat() {
 
 	// Send the request and set status
 	xhr.send(params);
+	console.log("message sent..");
 	//statusDisplay.innerHTML = 'Sending...';
 }
 
@@ -331,3 +527,31 @@ function log(txt) {
 		chrome.extension.getBackgroundPage().log(txt);
 	}
 }
+
+/*function getText(){
+    alert("null"+document.body.innerText);
+
+}
+function getHTML(){
+    return document.body.outerHTML;
+}
+
+chrome.tabs.getSelected(null, function(tab) {
+    chrome.tabs.sendRequest(tab.id, {method: "getText"}, function(response) {
+        if (response.method == "getText") {
+            alltext = response.data;
+            alert(alltext);
+        }
+    });
+});
+
+chrome.extension.onRequest.addListener(
+	    function(request, sender, sendResponse) {
+	        if(request.method == "getText"){
+	            sendResponse({data: document.all[0].innerText, method: "getText"}); //same as innerText
+	        }
+	    }
+	);
+
+alert(getText());             //Gives you all the text on the page
+alert(getHTML());             //Gives you the whole HTML of the page*/

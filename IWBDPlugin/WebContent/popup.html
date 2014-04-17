@@ -20,10 +20,12 @@ input#save {
 	width: auto;
 }
 </style>
-<script src="javaScriptFiles/popup.js"></script>
-<!-- <script src="javaScriptFiles/popup2.js"></script> -->
+<script src="javaScriptFiles/Usepopup.js"></script>
+<script src="javaScriptFiles/jquery.js"></script>
+<!-- <script src="javaScriptFiles/Usepopup.js"></script> -->
 </head>
 <body>
+<div id="result"></div>
 	<form action=change()>
 		<button id="logout">logout</button>
 	</form>
@@ -42,7 +44,6 @@ input#save {
 				type="text" id="enterTextHere" name="enterTextHere" size="50"
 				value="" />
 		</p>
-
 		<p>
 			<!-- <input id="save" type="submit" value="Save Bookmark" /> -->
 		</p>
@@ -50,6 +51,7 @@ input#save {
 			style="min-width: 357px; min-height: 2px; overflow-x: hidden; resize: none; autoscroll: true"
 			name="take_url" id="get_url"></textArea>
 	</form>
+	<div id="notice"></div>
 	<!-- uncomment below div when all urls are need to be seen and also uncomment lines of code in popup.js -->
 	<!-- <div>URL List</div>
 	<ul ID=urlList>
