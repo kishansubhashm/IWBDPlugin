@@ -1,5 +1,5 @@
 {
-     "manifest_version": 2, 
+    "manifest_version": 2, 
     "name": "Interactive Web Browsing Plugin",
     "description": "better than the best",
     "version": "0.1",
@@ -20,9 +20,10 @@
 
   ],
     "permissions": [
-        //"tabs",
         "activeTab",
         "tabs",
+        "contextMenus",
+        "http://localhost/",
          "https://docs.google.com/feeds/*",
   		"https://www.google.com/accounts/OAuthGetRequestToken",
   		"https://www.google.com/accounts/OAuthAuthorizeToken",

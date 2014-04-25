@@ -1,23 +1,8 @@
-/*//Array to hold callback functions
-var callbacks = [];
-
-//This function is called onload in the popup code
-function getPageInfo(callback) { 
-	// Add the callback to the queue
-	callbacks.push(callback); 
-	// Inject the content script into the current page 
-	chrome.tabs.executeScript(null, { file: 'content_script.js' }); 
-};
-
-//Perform the callback when a request is received from the content script
-chrome.extension.onMessage.addListener(function(request)  { 
-	// Get the first callback in the callbacks array
-	// and remove it from the array
-	var callback = callbacks.shift();
-	// Call the callback function
-	callback(request); 
-});
-*/
+var tempUrl;
+var curUrl;
+var setUrl;
+var email="dummy";
+var uname="dummy";
 function testing(a,b)
 {
 	console.log("sum of 3+4 is : "+7);
@@ -28,7 +13,7 @@ function testing(a,b)
 
 function testFromBackground()
 {
-/*	var str = window.localStorage.getItem("time");
+	/*	var str = window.localStorage.getItem("time");
 	console.log(str);
 	if(new Date().getTime()<str+1000000)
 	{
@@ -38,24 +23,49 @@ function testFromBackground()
 	}
 	else
 		console.log("time exceeded");
-*/
+	 */
+}
+function backgroundAjaxTest()
+{
+	findCredentials();
+	console.log("from backgroundAjaxTest");
+	setInterval(function(){callServelt();},3000000);
+
+}
+/*function callServelt()
+{
+	var postUrl = "http://localhost:8080/IWBDPlugin/TestMessage";
+	var xhr = new XMLHttpRequest();
+	xhr.open('get', postUrl, true);
+	var params = "hi";
+	xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+	xhr.onreadystatechange = function(progress) { 
+		if (xhr.readyState == 4) {
+				var b=this.response;
+				console.log("message recieved.."+b);
+		}
+	};
+	xhr.send(params);
+	console.log("message sent..\n");
+}*/
+
+function stopBackgroundPage()
+{
+	var bkg = chrome.extension.getBackgroundPage();
+	bkg.location.reload();
 }
 
-function getChatFromBackground(url,uname,uid)
+function getInitialMessagesFromBackground(url,uid,uname,statusDisplay,a,post,postUrl)
 {
-	// Cancel the form submit
-	// event.preventDefault();
+	//var postUrl = "http://meher.jelastic.elastx.net/Final/AuthenticationServlet?uid="+uid+"&url="+url+"&uname="+uname+"&mes="+""+"&status=true";
 
-	// The URL to POST our data to
-	//var postUrl = "http://localhost:8080/IWBDPlugin/TestMessage";//?wrd="+document.getElementById('summary').value+"&ed="+document.getElementById('enterTextHere').value;
-	var postUrl = "http://meher.jelastic.elastx.net/Final/UpdateMessageServlet?uid="+uid+"&url="+url+"&uname="+uname+"&mes="+""+"&status=true";
 	// Set up an asynchronous AJAX POST request
 	var xhr = new XMLHttpRequest();
 	xhr.open('get', postUrl, true);
 
 	// Prepare the data to be POSTed
 
-	var post = encodeURIComponent(document.getElementById('enterTextHere').value);
+	//var post = encodeURIComponent(document.getElementById('enterTextHere').value);
 	// var summary = encodeURIComponent(document.getElementById('summary').value);
 
 	var params = post;
@@ -68,30 +78,13 @@ function getChatFromBackground(url,uname,uid)
 		if (xhr.readyState == 4) {
 			//statusDisplay.innerHTML = '';
 			if (xhr.status == 200) {
-				a=document.getElementById("summary").value;
-				b=xhr.responseText;
-				console.log("response from getchat"+b);
-				if(prev!=b)
-					prev = b;
-				else
-				{
-				//	getChat();
-					return;
-				}
 
-				console.log("message recieved.."+b);
+				//alert("last name:"+window.localStorage.getItem("lastname"));
+				//a=document.getElementById("summary").value;
+				b=xhr.responseText;	
+				//alert("response is:"+xhr.responseText);
 
-				/*store(b);
-					var str = window.localStorage.getItem(url);
-					var res = str.split("*(_)*");
-					var localStoredMessages="";
-					for(var i=1;i<res.length;i++)
-					{
-						localStoredMessages+=res[i];
-					}
-					if(localStoredMessages==null)
-						localStoredMessages="";
-					statusDisplay.innerHTML=localStoredMessages+b;*/
+				//alert("from yesnewmessage : "+b);
 				//store(b);
 				var str = window.localStorage.getItem(url);
 				//var res = str.split("*(_)*");
@@ -100,63 +93,44 @@ function getChatFromBackground(url,uname,uid)
 				//alert("direct response:"+xhr.responseText);
 				var rcvd=xhr.responseText;
 				var obj=JSON.parse(rcvd);
-				//alert("after parsing: "+"test"+obj.Messages+"ends");
+				//alert("after parsing: "+obj.Messages);
 				if(obj.Messages=="")
 				{
-					//alert("from no reply getChat: "+obj.Messages);
+					//alert("from no reply getEmpty: "+obj.Messages);
 				}
-				else if(obj.Messages!=""||obj.Messages.length>0)
+				else if(obj.Messages!="")
 				{
-
-
-					/*var str = window.localStorage.getItem(url);
-						var res = str.split("*(_)*");
-						var localStoredMessages="";
-						for(var i=1;i<res.length;i++)
-						{
-							localStoredMessages+=res[i];
-							//store(localStoredMessages);
-						}
-						if(localStoredMessages==null)
-							localStoredMessages="";
-						statusDisplay.innerHTML=localStoredMessages+b;*/
-
-
 					var coma = obj.Messages.split(",");
-
 					var GotMessages="";
-					//console.log("coma.length"+coma.length);
+					//alert("coma.length"+coma.length);
 
-					GotMessages+=coma[1];
+					GotMessages=coma[1];
+
 					for(var i=2;i<coma.length;i++)
 					{
 						GotMessages+="\n"+coma[i];
 						//store(GotMessages);//storing in local storage
 					}
-					var inhtml = statusDisplay.innerHTML;
-					statusDisplay.innerHTML = "";
+					console.log(GotMessages);
 					statusDisplay.innerHTML = inhtml+"\n" + GotMessages;
 
 				}
+
 				note.innerHTML ="";
 				getChat();
 			} else {
 				// Show what went wrong
 				//statusDisplay.innerHTML = document.getElementById("enterTextHere").value + xhr.statusText;
+				alert("something went wrong for first messgaes");
 			}
 		}
 	};
 
+	statusDisplay.innerHTML=GotMessages;
 	// Send the request and set status
 	xhr.send(params);
-	console.log("reqest_message sent from getChat..");
+	console.log('Activation servlet called..');
 	//statusDisplay.innerHTML = 'Sending...';
-}
-
-function stopBackgroundPage()
-{
-	var bkg = chrome.extension.getBackgroundPage();
-	bkg.location.reload();
 }
 /*var audioElement = document.createElement('audio');
 audioElement.setAttribute('src', 'http://meher.jelastic.elastx.net/Final/AddMessageServlet?uid=uid&uname=uname&message=from background&status=false');
@@ -165,3 +139,68 @@ audioElement.setAttribute('hidden', false);
 audioElement.play(); 
 alert("from background page");
 console.log("from background page");*/
+
+
+//to view all tabs in the chrome, uncomment below lines of code and also uncomment lines of code in popup.html
+function findCredentials(){
+	var temp;
+	var found="yes";
+	var matchUrl="http://harsha.jelastic.elastx.net/subbucopy/subbu";
+	chrome.tabs.getAllInWindow(null, function(tabs) {
+		//console.log( "tabs.length"+ tabs.length);
+		/*tabs.forEach(function(tab){
+	console.log(tab.url);
+	if(tab.url=="http://harsha.jelastic.elastx.net/subbucopy/subbu?uname=kishan%20subhash&email=kissu.subbu@gmail.com")
+		alert("match found");  
+});*/
+		//uname=kishan%20subhash&email=kissu.subbu@gmail.com 
+		found="not";
+		for( var i=0;i< tabs.length;i++)
+		{	//console.log(tabs[i].url);
+			if(tabs[i].url!=matchUrl)
+			{
+				//console.log("inside not match");
+				temp=tabs[i].url.split("?");
+				if(temp[0]==matchUrl)
+				{
+					found="yes";
+					getCredentials(temp[1]);
+					break;
+					console.log("whats ur problem?");
+				}
+				else
+				{
+					console.log("url not found");
+				}
+			}
+			else
+			{
+				console.log("login credentials not found");
+			}
+		}
+		if(found=="not")
+		{
+			findCredentials();
+		}
+	});
+}
+function getCredentials(got)
+{
+	console.log("from getCredentials");
+	var forUname,fname,lname,imgId;
+	uname="",email="";
+	forUname=got.split("uname=");
+	console.log("String found getCredentials :"+forUname[1]);
+	fname=forUname[1].split("%20");
+	//console.log("first name is :"+fname[0]);
+	lname=fname[1].split("&email=");
+	//console.log("second name is :"+lname[0]);
+	uname=fname[0]+" "+lname[0];
+	console.log("user name is :"+uname);
+	email=lname[1];
+	console.log("email is :"+email);
+}
+
+//console.log(tabs[i].url);
+
+
