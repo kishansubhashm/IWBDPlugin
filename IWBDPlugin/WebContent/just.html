@@ -1,0 +1,27 @@
+<body>
+<button id="startButton" onclick="start()">Start</button>
+<button onclick="stop()">Stop</button>
+<button onclick="clearText()">Clear</button>
+<textarea id="displayTextArea" readonly="readonly" rows="30" cols="45"></textarea>
+<script type='text/javascript'>
+var eventSource=null;
+function start(){
+//console.log('HIIIIII');
+eventSource=new EventSource('SSE');//http://harsha.jelastic.elastx.net/Demo/SSE
+//console.log('HIIIIII11111111111');
+eventSource.onopen=function(){displayTextArea.value+='connected...'+'\n';};
+eventSource.onmessage=function(message){displayTextArea.value+=message.data+'\n\n';};
+eventSource.onerror=function(){displayTextArea.value+='error occures...'+'\n';};
+startButton.disabled=true;
+}
+function stop(){
+startButton.disabled=false;
+eventSource.close();
+
+}
+function clearText(){
+displayTextArea.value='';
+
+}
+</script>
+</body>
