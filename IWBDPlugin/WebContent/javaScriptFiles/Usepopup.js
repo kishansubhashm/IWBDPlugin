@@ -1,60 +1,175 @@
 var statusDisplay = null;
 var valueSet;
 var logging = false;
-var uid="103367";
-var url = "url";
-var uname="pepper147";
+var uid;
+var url="";
+var uname;
 var val1;
 var prev;
 var token;
-
+var status="true";
+var eventSource=null;
+var textarea;
+var chatType;
+var loadMore=false;
 
 chrome.browserAction.onClicked.addListener( function() {
 	chrome.tabs.executeScript( { file: 'javaScriptFiles/background.js' } );
+	chrome.tabs.executeScript( { file: 'javaScriptFiles/jquery.js' } );
+	chrome.tabs.executeScript( { file: 'javaScriptFiles/jquery_1_11_0s.js' } );
 });
 
 chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT},	
 		function(tabs){
-	
-	
+	if (jQuery) {
+		//alert("loaded");
+		$(document).ready(function(){
+			$("#summary").scroll(function(){
+				if($("#summary").scrollTop()==0)
+				{	
+					//alert("reachedTop");
+					loadMore=true;
+				}
+			});
+		});
+	} else {
+		//alert("jQuery loaded");
+		// jQuery not loaded
+	}
 	document.getElementById("get_url").innerHTML=tabs[0].url;
 	url =tabs[0].url;
+	uname=window.localStorage.getItem("token");
+	uid=window.localStorage.getItem("tokenId");
+	chatType = document.getElementById('chatType').value;
+	window.localStorage.setItem("chatType",chatType);
+	url=url.replace(/[^a-zA-Z0-9 ]/g, "");
+	if(url.indexOf('#') === -1)
+	{
+		//callSSE(url,uname,uid);
+		chrome.extension.getBackgroundPage().callSSEfromBackground(url,uname,uid,status);
+		readDataBase(url,0);
+		setInterval(function(){
+			readDataBase(url,1);
+			if(loadMore)
+				loadMoreMessagesFromDataBase(url);
+		},1500);
+		/*setInterval(function(){
+			forMessages();
+		},2000);*/
+	}
+	else
+	{
+		//alert("hash found.");
+		note.innerHTML ="<font color='red'><b>This is a private page<br>You cannot chat on this..<b></font>";
+	}
 	chrome.extension.getBackgroundPage().findCredentials();
-	//chrome.extension.getBackgroundPage().testing(3,4);
-//	getInitialMessages();
-//	getChat();
-//	chrome.extension.getBackgroundPage().backgroundAjaxTest();
-	//setInterval(function(){/*alert("3+4 is :"+*/chrome.extension.getBackgroundPage().testing(3,4);/*);*/},1000);	
-	//setInterval(function(){getChat();},1000);	
 });
 
-
-
 window.addEventListener('load', function(evt) {
+
 	tokenSaved=window.localStorage.getItem("token");
 	//alert("token found is : "+token);
 	if(tokenSaved!=null)
 	{
-		
-		
-		
 		//alert("from token !=null, login as"+window.localStorage.getItem("token"));
 		document.getElementById('chatInside').addEventListener('submit', sendMessage);
 		statusDisplay = document.getElementById('summary');
 		note= document.getElementById('notice');
-		getInitialMessages();
-		getChat();
-		chrome.extension.getBackgroundPage().backgroundAjaxTest();
+		chrome.extension.getBackgroundPage().backgroundAjaxStart();
 	}
 	else
 	{
 		//alert("from token==null");
 //		window.localStorage.setItem("token", "kishansubhash");
-
-		document.getElementById('enterToken').addEventListener('submit', enterToken);
-		toggleElement('chat');
+		/*document.getElementById('enterToken').addEventListener('submit', enterToken);
+		toggleElement('chat');*/
+		authenticate();
 	}
 });
+
+function readDataBase(url,opening)
+{
+	//console.log("from readDataBase");
+	if(window.localStorage.getItem("data") =="0001-0010-0100-1000" || opening==0)
+	{
+		var db = openDatabase('chat', '1.0', 'Test DB', 2 * 1024 * 1024);
+		var msg;
+		url=url.replace(/[^a-zA-Z0-9 ]/g, "");
+		console.log("from readDataBase if condition");
+		db.transaction(function (tx) {
+			tx.executeSql('SELECT * FROM '+url+';', [], function (tx, results) {
+				var len = results.rows.length, i;
+				msg = "<p>Found rows: " + len + "</p>";
+				//console.log(msg);
+				statusDisplay.value="";
+				for (i = 0; i < len; i++){
+					msg = "\n"+results.rows.item(i).sender +" : "+results.rows.item(i).message;
+					statusDisplay.value+=  msg;
+					//	alert(msg);
+					textBoxSize();
+				}
+			}, null);
+		}); 
+		/*		var textarea = document.getElementById('summary');
+		textarea.scrollTop = textarea.scrollHeight+1;
+		 */		window.localStorage.setItem("data", "0000-0000-0000-0000");
+	}
+	else 
+	{
+		//window.localStorage.setItem("data", "0000-0000-0000-0000");
+		console.log("from readDataBase else condition");
+	}
+
+}
+function loadMoreMessagesFromDataBase(url,opening)
+{
+	console.log("from load more");
+	loadMore=false;
+}
+function textBoxSize()
+{
+	textarea = document.getElementById('summary');
+	textarea.scrollTop = textarea.scrollHeight+1;
+}
+
+
+
+function forMessages()
+{
+	if(window.localStorage.getItem("data") =="0001-0010-0100-1000")
+	{
+		console.log("from forMessages");
+		chrome.extension.sendRequest({message: "send"}, function(response) {
+			console.log(response.statusToSend);
+			if(response.statusToSend!="lolz")
+			{
+				statusDisplay.value+=response.farewell;
+			}
+		});
+		window.localStorage.setItem("data", "0000-0000-0000-0000");
+		textarea = document.getElementById('summary');
+		textarea.scrollTop =99999;
+	}
+	else 
+	{
+		console.log("from forMessages else condition");
+	}
+}
+function callSSE(url,uname,uid)
+{
+	tokenSaved=window.localStorage.getItem("token");
+	if(tokenSaved!=null)
+	{
+		//console.log("status is"+status);
+		eventSource=new EventSource('http://shalini-pc:8080/SimilarPracticum/GetMessagesServlet?uid='+uid+"&url="+url+"&uname="+uname+'&mes='+''+'&chatType='+chatType);
+		//eventSource=new EventSource('http://shalini-pc:8080/NewOne/SSE?uid='+uid+"&url="+url+"&uname="+uname+'&mes='+''+'&status='+status);
+		//eventSource=new EventSource('http://54.187.111.78:8080/NewOne/SSE?uid='+uid+"&url="+url+"&uname="+uname+'&mes='+''+'&status='+status);
+		console.log('sse called');
+		eventSource.onopen=function(){console.log('sse called from connected');statusDisplay.value+='connected...'+'\n';};
+		eventSource.onmessage=function(message){console.log('sse called from message');statusDisplay.value+=message.data+'\n\n';};
+		eventSource.onerror=function(){console.log('sse called from error');statusDisplay.value+="error";};
+	}
+}
 
 function toggleElement(id) {
 	var arr = [ "chat", "enterToken" ];
@@ -83,11 +198,15 @@ function sendMessage() {
 	//alert("from send message");
 	console.log("from send message");
 	note.innerHTML ="<font color='red'><b>sending..<b></font>";
+
 	// Cancel the form submit
 	event.preventDefault();
+
 	// The URL to POST our data to
-	//var postUrl = "http://localhost:8080/IWBDPlugin/SentMessage?wrd="+document.getElementById('summary').value+"&ed="+document.getElementById('enterTextHere').value;
-	var postUrl = "http://meher.jelastic.elastx.net/Final/AddMessageServlet?uid="+uid+"&url="+url+"&uname="+uname+"&mes="+document.getElementById('enterTextHere').value+"&status=true";//?wrd="+document.getElementById('summary').value+"&ed="+document.getElementById('enterTextHere').value;
+	var postUrl = "http://shalini-pc:8080/SimilarPracticum/AddMessageServlet?uid="+uid+"&url="+url+"&uname="+uname+"&mes="+document.getElementById('enterTextHere').value+"&chatType="+chatType;
+	//var postUrl = "http://shalini-pc:8080/NewOne/AddMessageServlet?uid="+uid+"&url="+url+"&uname="+uname+"&mes="+document.getElementById('enterTextHere').value+"&status="+status ;
+	//var postUrl = "http://54.187.111.78:8080/NewOne/AddMessageServlet?uid="+uid+"&url="+url+"&uname="+uname+"&mes="+document.getElementById('enterTextHere').value+"&status="+status ;
+
 	// Set up an asynchronous AJAX POST request
 	var xhr = new XMLHttpRequest();
 	xhr.open('get', postUrl, true);
@@ -99,245 +218,67 @@ function sendMessage() {
 	xhr.setRequestHeader('Content-type', 'multipart/form-data');
 	// Handle request state change events
 	xhr.onreadystatechange = function() { 
-		// If the request completed
 		if (xhr.readyState == 4) {
-			//statusDisplay.innerHTML = '';
 			if (xhr.status == 200) {
 				a=document.getElementById("summary").value;
-				//statusDisplay.innerHTML = a+"\n"+uname+":"+document.getElementById('enterTextHere').value;
-				// a+"\n"+uname+":"+document.getElementById('enterTextHere').value;
 				b=xhr.responseText;
 				if(prev!=b)
 					prev=b;
-				//statusDisplay.innerHTML = a+"\n"+uname+":"+document.getElementById('enterTextHere').value;
 				document.getElementById('enterTextHere').value="";
 				//alert("message sent sucessfully"+b);
-				note.innerHTML ="<font color='blue'><b>message sent sucessfully..<b></font>";
+				if(xhr.responseText="rcvd")
+					note.innerHTML ="<font color='blue'><b>message sent sucessfully..<b></font>";
+				else
+					note.innerHTML ="<font color='red'><b>message not sent..<b></font>";
 			} else {
 				// Show what went wrong
 				document.getElementById('enterTextHere').value="";
 				note.innerHTML = "<b>something went wrong..</b><br>please check your net connection...";
 			}
 		}
-		getChat();
 	};
 	// Send the request and set status
 	xhr.send(params);
 	console.log('Add message servlet..');
-	//statusDisplay.innerHTML = 'Sending...';
-}
-
-
-function getInitialMessages() {
-	var postUrl = "http://meher.jelastic.elastx.net/Final/AuthenticationServlet?uid="+uid+"&url="+url+"&uname="+uname+"&mes="+""+"&status=true";
-
-	// Set up an asynchronous AJAX POST request
-	var xhr = new XMLHttpRequest();
-	xhr.open('get', postUrl, true);
-
-	// Prepare the data to be POSTed
-
-	var post = encodeURIComponent(document.getElementById('enterTextHere').value);
-	// var summary = encodeURIComponent(document.getElementById('summary').value);
-
-	var params = post;
-	// Set correct header for form data 
-	xhr.setRequestHeader('Content-type', 'multipart/form-data');
-
-	// Handle request state change events
-	xhr.onreadystatechange = function() { 
-		// If the request completed
-		if (xhr.readyState == 4) {
-			//statusDisplay.innerHTML = '';
-			if (xhr.status == 200) {
-
-				//alert("last name:"+window.localStorage.getItem("lastname"));
-				a=document.getElementById("summary").value;
-				b=xhr.responseText;	
-				//alert("response is:"+xhr.responseText);
-
-				//alert("from yesnewmessage : "+b);
-				//store(b);
-				var str = window.localStorage.getItem(url);
-				//var res = str.split("*(_)*");
-				var localStoredMessages="";
-
-				//alert("direct response:"+xhr.responseText);
-				var rcvd=xhr.responseText;
-				var obj=JSON.parse(rcvd);
-				//alert("after parsing: "+obj.Messages);
-				if(obj.Messages=="")
-				{
-					//alert("from no reply getEmpty: "+obj.Messages);
-				}
-				else if(obj.Messages!="")
-				{
-					var coma = obj.Messages.split(",");
-					var GotMessages="";
-					//alert("coma.length"+coma.length);
-
-					GotMessages=coma[1];
-
-					for(var i=2;i<coma.length;i++)
-					{
-						GotMessages+="\n"+coma[i];
-						//store(GotMessages);//storing in local storage
-					}
-					console.log(GotMessages);
-					AppendMessages(GotMessages);
-
-				}
-
-				note.innerHTML ="";
-				getChat();
-			} else {
-				// Show what went wrong
-				//statusDisplay.innerHTML = document.getElementById("enterTextHere").value + xhr.statusText;
-				alert("something went wrong for first messgaes");
-			}
-		}
-	};
-	function AppendMessages(GotMessages)
-	{
-		statusDisplay.innerHTML=GotMessages;
-	}
-	// Send the request and set status
-	xhr.send(params);
-	console.log('Activation servlet called..');
-	//statusDisplay.innerHTML = 'Sending...';
-}
-
-
-function getChat() {
-	// Cancel the form submit
-	// event.preventDefault();
-
-	// The URL to POST our data to
-	//var postUrl = "http://localhost:8080/IWBDPlugin/TestMessage";//?wrd="+document.getElementById('summary').value+"&ed="+document.getElementById('enterTextHere').value;
-	var postUrl = "http://meher.jelastic.elastx.net/Final/UpdateMessageServlet?uid="+uid+"&url="+url+"&uname="+uname+"&mes="+""+"&status=true";
-	// Set up an asynchronous AJAX POST request
-	var xhr = new XMLHttpRequest();
-	xhr.open('get', postUrl, true);
-
-	// Prepare the data to be POSTed
-
-	var post = encodeURIComponent(document.getElementById('enterTextHere').value);
-	// var summary = encodeURIComponent(document.getElementById('summary').value);
-
-	var params = post;
-	// Set correct header for form data 
-	xhr.setRequestHeader('Content-type', 'multipart/form-data');
-
-	// Handle request state change events
-	xhr.onreadystatechange = function() { 
-		// If the request completed
-		if (xhr.readyState == 4) {
-			//statusDisplay.innerHTML = '';
-			if (xhr.status == 200) {
-				a=document.getElementById("summary").value;
-				b=xhr.responseText;
-				console.log("response from getchat"+b);
-				if(prev!=b)
-					prev = b;
-				else
-				{
-					//	getChat();
-					return;
-				}
-
-				console.log("message recieved.."+b);
-
-				/*store(b);
-					var str = window.localStorage.getItem(url);
-					var res = str.split("*(_)*");
-					var localStoredMessages="";
-					for(var i=1;i<res.length;i++)
-					{
-						localStoredMessages+=res[i];
-					}
-					if(localStoredMessages==null)
-						localStoredMessages="";
-					statusDisplay.innerHTML=localStoredMessages+b;*/
-				//store(b);
-				var str = window.localStorage.getItem(url);
-				//var res = str.split("*(_)*");
-				var localStoredMessages="";
-
-				//alert("direct response:"+xhr.responseText);
-				var rcvd=xhr.responseText;
-				var obj=JSON.parse(rcvd);
-				//alert("after parsing: "+"test"+obj.Messages+"ends");
-				if(obj.Messages=="")
-				{
-					//alert("from no reply getChat: "+obj.Messages);
-				}
-				else if(obj.Messages!=""||obj.Messages.length>0)
-				{
-
-
-					/*var str = window.localStorage.getItem(url);
-						var res = str.split("*(_)*");
-						var localStoredMessages="";
-						for(var i=1;i<res.length;i++)
-						{
-							localStoredMessages+=res[i];
-							//store(localStoredMessages);
-						}
-						if(localStoredMessages==null)
-							localStoredMessages="";
-						statusDisplay.innerHTML=localStoredMessages+b;*/
-
-
-					var coma = obj.Messages.split(",");
-
-					var GotMessages="";
-					//console.log("coma.length"+coma.length);
-
-					GotMessages+=coma[1];
-					for(var i=2;i<coma.length;i++)
-					{
-						GotMessages+="\n"+coma[i];
-						//store(GotMessages);//storing in local storage
-					}
-					var inhtml = statusDisplay.innerHTML;
-					statusDisplay.innerHTML = "";
-					statusDisplay.innerHTML = inhtml+"\n" + GotMessages;
-
-				}
-				note.innerHTML ="";
-				getChat();
-			} else {
-				// Show what went wrong
-				//statusDisplay.innerHTML = document.getElementById("enterTextHere").value + xhr.statusText;
-			}
-		}
-	};
-
-	// Send the request and set status
-	xhr.send(params);
-	console.log("reqest_message sent from getChat..");
-	//statusDisplay.innerHTML = 'Sending...';
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-	document.getElementById('getToken').addEventListener('click', getToken);
+	document.getElementById('getToken').addEventListener('click', authenticate);
 });
-function getToken()
+function authenticate()
 {
 	//uncomment below two lines
 	//window.close();
 	//for popup
-/*	var popwin =window.open('http://1-dot-iwb-auth-01.appspot.com/','0','width=500,height=500,toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,left=500,top=100');return true;*/
+	/*	var popwin =window.open('http://1-dot-iwb-auth-01.appspot.com/','0','width=500,height=500,toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,left=500,top=100');return true;*/
 	//for new tab
 	window.open('http://1-dot-iwb-auth-01.appspot.com/');
 	popwin.focus();
 }
 
+document.addEventListener('DOMContentLoaded', function () {
+	document.getElementById('logout').addEventListener('click', deleteToken);
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+	document.getElementById('chatType').addEventListener('change', setChatType);
+	//console.log("from here");
+});
+function setChatType()
+{	
+	chatType = document.getElementById('chatType').value;
+	//console.log("from setChatType, set chat type to : "+chatType);
+	window.localStorage.setItem("chatType",chatType);
+	//console.log(url,uname,uid,status);
+	chrome.extension.getBackgroundPage().changingEventSource(url,uname,uid,status);
+}
 function deleteToken()
 {
+	//console.log("from delete token");
+	chrome.extension.getBackgroundPage().closingEventSource();
 	window.localStorage.removeItem("token");
-	var popwin = window.open("https://mail.google.com/mail/u/0/?logout&hl=en");
-	setTimeout(function(){popwin.close(); window.location.href='http://1-dot-iwb-auth-01.appspot.com';},1000);
+	window.localStorage.removeItem("tokenId");
+	toggleElement('chat');
 }
 
 function enterToken()
@@ -345,7 +286,7 @@ function enterToken()
 	event.preventDefault();
 	var tokenEntered= document.getElementById('enterTokenTxt').value;
 	alert("enterTokenTxt is : "+enterTokenTxt.value);
-	if(tokenEntered=="kishan")
+	if(tokenEntered!="" || tokenEntered!=null)
 	{
 		window.localStorage.setItem("token", tokenEntered);
 		toggleElement('enterToken');

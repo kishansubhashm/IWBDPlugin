@@ -23,46 +23,61 @@ input#save {
 <!-- <script src="javaScriptFiles/popup.js"></script> -->
 <script src="javaScriptFiles/Usepopup.js"></script>
 <script src="javaScriptFiles/jquery.js"></script>
+<script type="text/javascript" src="javaScriptFiles/jquery_1_11_0s.js"></script>
+<script src="javaScriptFiles/background.js"></script>
 <!-- <script src="javaScriptFiles/Usepopup.js"></script> -->
 </head>
 <body>
 	<div id="result"></div>
 	<div id="enterToken" class="hide" style="display: none">
-	<form action=getToken()>
-	<br>Already registered?
-			<i><a id="getToken" href="" style="text-decoration: blink;">Get Token</a></i> here
-			</form>
+		<form action=getToken()>
+			<br>Already registered? <i><a id="getToken" href=""
+				style="text-decoration: blink;">Get Token</a></i> here
+		</form>
 		<form action=enterToken() id=enterToken>
-		<input type="text" id="enterTokenTxt" value="" autofocus="autofocus" draggable="false" required="required" placeholder="Enter Your Token Here" >
+			<input type="text" id="enterTokenTxt" value="" autofocus="autofocus"
+				draggable="false" required="required"
+				placeholder="Enter Your Token Here">
 		</form>
 	</div>
-	<div id="chat" class="show" style="display: ''">
-		<form action=deleteToken()>
-			<button id="logout">logout</button>
-		</form>
-		<form id="chatInside" name="form1">
+	<table>
+		<tr>
+			<td align="left"  >
+				<div id="chat" class="show">
+					Select Chat Type: <select id="chatType">
+						<option value="Exact">Exact</option>
+						<option value="Similar">similar</option>
+						
+					</select>
+				</div>
+			</td>
+			<td align="right">
+				<button id="logout" style="align: right">logout</button>
+			</td>
+	</table>
+	<form id="chatInside" name="form1">
 
-			<p>
-				<label for="summary">Summary</label><br />
-				<!--  <img
+		<p>
+			<label for="summary">Summary</label><br />
+			<!--  <img
 				src="https://lh6.googleusercontent.com/-kazYqwVU0ow/AAAAAAAAAAI/AAAAAAAAABk/Y2GTXgZI6hQ/photo.jpg?sz=50"> -->
-				<textarea id="summary" name="summary" rows="6" cols="35">
+			<textarea id="summary" name="summary" rows="6" cols="35">
 			</textarea>
-			</p>
+		</p>
 
 
-			<p>
-				<label for="enterTextHere">enterTextHere</label><br /> <input
-					type="text" id="enterTextHere" name="enterTextHere" size="50"
-					value="" />
-			</p>
-			<p>
-				<!-- <input id="save" type="submit" value="Save Bookmark" /> -->
-			</p>
-			<textArea
-				style="min-width: 357px; min-height: 2px; overflow-x: hidden; resize: none; autoscroll: true"
-				name="take_url" id="get_url"></textArea>
-		</form>
+		<p>
+			<label for="enterTextHere">enterTextHere</label><br /> <input
+				type="text" id="enterTextHere" name="enterTextHere" size="50"
+				value="" />
+		</p>
+		<p>
+			<!-- <input id="save" type="submit" value="Save Bookmark" /> -->
+		</p>
+		<textArea
+			style="min-width: 357px; min-height: 2px; overflow-x: hidden; resize: none; autoscroll: true"
+			name="take_url" id="get_url"></textArea>
+	</form>
 	</div>
 	<div id="notice"></div>
 	<!-- uncomment below div when all urls are need to be seen and also uncomment lines of code in popup.js -->

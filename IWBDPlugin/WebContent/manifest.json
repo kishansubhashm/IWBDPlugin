@@ -4,7 +4,7 @@
     "description": "better than the best",
     "version": "0.1",
     "background": {
-        "scripts": ["javaScriptFiles/background.js","javaScriptFiles/jquery.js"],
+        "scripts": ["javaScriptFiles/background.js","javaScriptFiles/jquery.js","javaScriptFiles/jquery_1_11_0s.js"],
         "persistent": true//scope until browser closed from time of open
         //"page": "background.html"
     },
