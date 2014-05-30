@@ -5,10 +5,8 @@ body {
 	min-width: 320px;
 	overflow-x: hidden;
 	font-family: Arial, sans-serif;
-	font-size: 12px;
-	//
-	document
-	.body.appendChild(overlay);
+	font-size: 12px; // document .body.appendChild(overlay);
+	background: #f2f2f2;
 }
 
 input,textarea {
@@ -21,9 +19,10 @@ input#save {
 }
 </style>
 <!-- <script src="javaScriptFiles/popup.js"></script> -->
+<link rel="stylesheet" type="text/css" href="css//usepopup.css">
+<link rel="stylesheet" type="text/css" href="css//bootstrap.min.css">
 <script src="javaScriptFiles/Usepopup.js"></script>
 <script src="javaScriptFiles/jquery.js"></script>
-<script type="text/javascript" src="javaScriptFiles/jquery_1_11_0s.js"></script>
 <script src="javaScriptFiles/background.js"></script>
 <!-- <script src="javaScriptFiles/Usepopup.js"></script> -->
 </head>
@@ -40,37 +39,60 @@ input#save {
 				placeholder="Enter Your Token Here">
 		</form>
 	</div>
-	<table>
+	<table id="tableMenu">
+	<div class='togglebox' style="margin-top:10px;">
+					<input type='checkbox' id='chkbx'> <label for='chkbx'><b></b></label>
+				</div>
 		<tr>
-			<td align="left"  >
-				<div id="chat" class="show">
-					Select Chat Type: <select id="chatType">
-						<option value="Exact">Exact</option>
+			<!-- <td align="left">
+				<div id="chat" class="dropdown dropdown-dark">
+					<select id="chatType" name="two" class="dropdown-select">
 						<option value="Similar">similar</option>
-						
+						<option value="Exact">Exact</option>
 					</select>
 				</div>
+			</td> -->
+			<td align="left" style="cols:2;">
+				<!-- <div class='togglebox'>
+					<input type='checkbox' id='chkbx'> <label for='chkbx'><b></b></label>
+				</div> -->
 			</td>
-			<td align="right">
-				<button id="logout" style="align: right">logout</button>
+			<td>
+				<!-- <button id="logout" style="float: right">logout</button> -->
+				<div class="dropdown">
+				<!-- 	<span class="dropdown-toggle" tabindex="0"></span>
+					<div class="dropdown-text">
+						Profile<i class="icon-user icon"></i>
+					</div>
+					<ul class="dropdown-content">
+						<li><a href="#">Settings <i class="icon-wrench-1 icon"></i></a></li>
+						<li><a href="#">Topics I searched most <i
+								class="icon-chart-pie icon"></i></a></li>
+						<li><a href="#">Log out <i class="icon-logout icon"></i></a></li>
+					</ul> -->
+				</div>
 			</td>
 	</table>
+	<button id="logout" style="margin-top:-37px;margin-right:9px;  float: right" class="btn btn-inverse">logout</button>
 	<form id="chatInside" name="form1">
-
-		<p>
+		<div class="container" id="cntn"></div>
+		<!-- 	<p>
 			<label for="summary">Summary</label><br />
-			<!--  <img
+			 <img
 				src="https://lh6.googleusercontent.com/-kazYqwVU0ow/AAAAAAAAAAI/AAAAAAAAABk/Y2GTXgZI6hQ/photo.jpg?sz=50"> -->
-			<textarea id="summary" name="summary" rows="6" cols="35">
-			</textarea>
+		<!-- <textarea id="summary" name="summary" rows="6" cols="35">
+			
 		</p>
 
 
 		<p>
-			<label for="enterTextHere">enterTextHere</label><br /> <input
-				type="text" id="enterTextHere" name="enterTextHere" size="50"
-				value="" />
-		</p>
+			<label for="enterTextHere">enterTextHere</label><br />
+		</p></textarea> -->
+		<div class="Area" id="enterTextDiv">
+			<textarea class="Dummy" placeholder="Participate in coversation"
+				id="enterTextHere" name="enterTextHere" style="overflow: none" /></textarea>
+		</div>
+
 		<p>
 			<!-- <input id="save" type="submit" value="Save Bookmark" /> -->
 		</p>
@@ -78,7 +100,8 @@ input#save {
 			style="min-width: 357px; min-height: 2px; overflow-x: hidden; resize: none; autoscroll: true"
 			name="take_url" id="get_url"></textArea>
 	</form>
-	</div>
+
+	<div></div><font style="">total no.of users: <span id="users"></span></font></div>
 	<div id="notice"></div>
 	<!-- uncomment below div when all urls are need to be seen and also uncomment lines of code in popup.js -->
 	<!-- <div>URL List</div>

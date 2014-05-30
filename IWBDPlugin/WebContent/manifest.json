@@ -1,7 +1,7 @@
 {
     "manifest_version": 2, 
-    "name": "Interactive Web Browsing Plugin",
-    "description": "better than the best",
+    "name": "Interactive Web Browsing",
+    "description": "Allows you to connect with people surfing on same or similar websites",
     "version": "0.1",
     "background": {
         "scripts": ["javaScriptFiles/background.js","javaScriptFiles/jquery.js","javaScriptFiles/jquery_1_11_0s.js"],
@@ -10,9 +10,13 @@
     },
     "browser_action": {
     "default_title": "Interactive Web Browsing Plugin",
-        "default_icon": "images/icon.png",
+        "default_icon": "images/logo_iwb.png",
         "default_popup": "popup.html"
     },
+    "icons": { 
+    	 "16": "images/logo_iwb16x16.png",
+         "48": "images/logo_iwb48x48.png",
+         "128": "images/logo_iwb128x128.png" },
     "web_accessible_resources": [
     "chrome_ex_oauth.html",
     "chrome_ex_oauthsimple.html",

@@ -3,7 +3,7 @@ var valueSet;
 var logging = false;
 var uid;
 var url="";
-var uname;
+var urlSend="";
 var val1;
 var prev;
 var token;
@@ -11,63 +11,65 @@ var status="true";
 var eventSource=null;
 var textarea;
 var chatType;
-var loadMore=false;
-
+var cssAdd;
+var count;
+var divChangeTime=0;
+var db = openDatabase('chat', '1.0', 'Test DB', 2 * 1024 * 1024);
 chrome.browserAction.onClicked.addListener( function() {
 	chrome.tabs.executeScript( { file: 'javaScriptFiles/background.js' } );
 	chrome.tabs.executeScript( { file: 'javaScriptFiles/jquery.js' } );
-	chrome.tabs.executeScript( { file: 'javaScriptFiles/jquery_1_11_0s.js' } );
+
+
 });
 
 chrome.tabs.query({'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT},	
 		function(tabs){
-	if (jQuery) {
-		//alert("loaded");
-		$(document).ready(function(){
-			$("#summary").scroll(function(){
-				if($("#summary").scrollTop()==0)
-				{	
-					//alert("reachedTop");
-					loadMore=true;
-				}
-			});
-		});
-	} else {
-		//alert("jQuery loaded");
-		// jQuery not loaded
-	}
 	document.getElementById("get_url").innerHTML=tabs[0].url;
 	url =tabs[0].url;
-	uname=window.localStorage.getItem("token");
+	urlSend=tabs[0].url;
+	console.log(urlSend);			//to print sending url
 	uid=window.localStorage.getItem("tokenId");
-	chatType = document.getElementById('chatType').value;
+	chatType ="Exact";
+	//chatType ="Similar";
+	db.transaction(function (tx) {
+		tx.executeSql('DROP TABLE SimilarTemp');
+	});
 	window.localStorage.setItem("chatType",chatType);
 	url=url.replace(/[^a-zA-Z0-9 ]/g, "");
 	if(url.indexOf('#') === -1)
 	{
-		//callSSE(url,uname,uid);
-		chrome.extension.getBackgroundPage().callSSEfromBackground(url,uname,uid,status);
-		readDataBase(url,0);
-		setInterval(function(){
-			readDataBase(url,1);
-			if(loadMore)
-				loadMoreMessagesFromDataBase(url);
-		},1500);
-		/*setInterval(function(){
-			forMessages();
-		},2000);*/
+		cssAdd="<style>ul{margin:0; padding:0; list-style:none; display:inline-block; width:300px; text-align:left; vertical-align:middle; }ul li{ line-height:30px; overflow:hidden; padding:4px 0; }.togglebox input{ display:none; }.togglebox{ display:inline-block; border:1px solid #BBB; width:90px; height:30px; position:relative; border-radius:20px; color:#FFF; font-weight:bold; overflow:hidden; box-shadow:0 1px 0 #CCC; }.togglebox label{ width:200%; height:100%; line-height:30px; border-radius:0.4em; position:absolute; top:0; left:0; z-index:1; font-size:1.1em; cursor:pointer; -webkit-transition:height 0.12s; -moz-transition:height 0.12s; transition:height 0.12s; }.togglebox span{ position:absolute; right:-100px; }.togglebox label::before{ content:'Exact'; width:62px; float:left; margin-right:-16px; padding-right:13px; text-align:center; background:#333; text-shadow:0 -1px 0px #093B5C; box-shadow:0 4px 5px -2px rgba(0,0,0,0.3) inset; }.togglebox label b{ display:block; height:100%; width:30px; float:left; position:relative; z-index:1; border:1px solid #AAA; background:#F6F6F6; box-shadow:0 4px 0 -2px #F1F1F1 inset, 0 2em 2em -2em #AAA inset, 0 0 2px rgba(0,0,0,.5); border-radius:20px; }.togglebox label:hover b{ background:#E5E5E5; }.togglebox label::after{ content:'Similar'; width:62px; float:left; margin-left:-15px; padding-left:13px; text-align:center; background:#333; box-shadow:0 4px 5px -2px rgba(0,0,0,0.3) inset; }.togglebox input:checked ~ label{ left:-60px; }<style>";
+		$(document).ready(function(){
+			$( "table td").html(cssAdd);
+			//$('#tableMenu td:first-child').addClass(cssAdd);
+			console.log("hi jquery");
+		});
+
+		chatType=window.localStorage.getItem("chatType");
+		chrome.extension.getBackgroundPage().callSSEfromBackground(urlSend,uid,status,chatType);
+		toCallDtabase();
 	}
 	else
 	{
-		//alert("hash found.");
 		note.innerHTML ="<font color='red'><b>This is a private page<br>You cannot chat on this..<b></font>";
 	}
+
 	chrome.extension.getBackgroundPage().findCredentials();
 });
 
+function toCallDtabase()
+{
+	readDataBase(url,0);
+	setInterval(function(){
+		//console.log("from toCallDtabase");
+		getUsersCount();
+		readDataBase(url,1);
+	},1500);
+}
+
 window.addEventListener('load', function(evt) {
 
-	tokenSaved=window.localStorage.getItem("token");
+	tokenSaved=window.localStorage.getItem("tokenId");
 	//alert("token found is : "+token);
 	if(tokenSaved!=null)
 	{
@@ -75,7 +77,9 @@ window.addEventListener('load', function(evt) {
 		document.getElementById('chatInside').addEventListener('submit', sendMessage);
 		statusDisplay = document.getElementById('summary');
 		note= document.getElementById('notice');
+		count=document.getElementById('users');
 		chrome.extension.getBackgroundPage().backgroundAjaxStart();
+		submitMessageWhenEnteredMessage();
 	}
 	else
 	{
@@ -87,13 +91,40 @@ window.addEventListener('load', function(evt) {
 	}
 });
 
+
+function submitMessageWhenEnteredMessage()
+{
+	$(document).ready(function(){
+		//console.log("loaded");
+		/*$('#enterTextHere').keydown(function(event) {
+			if (event.keyCode == 13) 
+			{
+				console.log("inside if");
+				sendMessage();
+			}
+		});
+	});
+		 */
+		$("#enterTextHere").keydown(function(e) {
+			/*if((e.which == 10 || e.which == 13) && e.shiftKey) {
+				console.log("inside  if");
+			}
+			else*/ if (e.which == 10 || e.which == 13) {
+				//console.log("inside else if");
+				sendMessage();
+			}
+		});
+	});
+}
+
 function readDataBase(url,opening)
 {
 	//console.log("from readDataBase");
 	if(window.localStorage.getItem("data") =="0001-0010-0100-1000" || opening==0)
 	{
-		var db = openDatabase('chat', '1.0', 'Test DB', 2 * 1024 * 1024);
-		var msg;
+		if(window.localStorage.getItem("chatType")=="Similar"){
+			url="SimilarTemp";
+		}
 		url=url.replace(/[^a-zA-Z0-9 ]/g, "");
 		console.log("from readDataBase if condition");
 		db.transaction(function (tx) {
@@ -101,18 +132,65 @@ function readDataBase(url,opening)
 				var len = results.rows.length, i;
 				msg = "<p>Found rows: " + len + "</p>";
 				//console.log(msg);
-				statusDisplay.value="";
+				//statusDisplay.value="";
+				var sample="";
+				var sampleT="";
+				var undb="";
+				var mesdb="";
+				var urldb="";
+				var profileUid="";
+				var img="";
+				var intrests="";
 				for (i = 0; i < len; i++){
-					msg = "\n"+results.rows.item(i).sender +" : "+results.rows.item(i).message;
-					statusDisplay.value+=  msg;
-					//	alert(msg);
-					textBoxSize();
+					undb=results.rows.item(i).sender;
+					mesdb=results.rows.item(i).message;
+					urldb=results.rows.item(i).SenderUrlRcvd;
+					profileUid=results.rows.item(i).uidSender;
+					img=results.rows.item(i).img;
+					intrests=results.rows.item(i).intrests;
+					if(profileUid==uid)
+					{
+						sample='<div class="Area" id="yours">' 
+							+'<div class="R">'
+							+'<a id='+profileUid+'>'
+							+'<img name="'+profileUid+'s" src='+img+'>'
+							+'</a>'
+							+'</div>'
+							+'<div class="text L textL" id="message">'+mesdb
+							+'</div>'
+							+'</div>';
+					}
+					else
+					{
+						sample='<div class="Area" id="others">' 
+							+'<div class="L">'
+							+'<a id='+profileUid+'>'
+							+'<img name="'+profileUid+'s" src='+img+'>'
+							+'<div class="tooltip"> name: '+undb+'<br> url:'+urldb+'<br> intrests:'+intrests+'</div></a>'
+							+'</div>'
+							+'<div class="text R textR" id="message">'+mesdb
+							+'</div>'
+							+'</div>';
+					}
+					sampleT+=sample;
+					var objDiv = document.getElementById("cntn");
+					objDiv.scrollTop = objDiv.scrollHeight;
+					//	textBoxSize();
 				}
+				$( "#cntn").html(sampleT);
+				/*to get the id's of the elements dynamically*/
+				var element = $('<a>');
+				element.attr('id', profileUid);
+				element.text("Whatever");
+				element.click(gotoGoogleProfile());
+				//element.appendTo(parent);
+				var objDiv = document.getElementById("cntn");
+				objDiv.scrollTop = objDiv.scrollHeight;
 			}, null);
-		}); 
-		/*		var textarea = document.getElementById('summary');
+		});		/*		var textarea = document.getElementById('summary');
 		textarea.scrollTop = textarea.scrollHeight+1;
-		 */		window.localStorage.setItem("data", "0000-0000-0000-0000");
+		 */		
+		window.localStorage.setItem("data", "0000-0000-0000-0000");
 	}
 	else 
 	{
@@ -121,54 +199,20 @@ function readDataBase(url,opening)
 	}
 
 }
-function loadMoreMessagesFromDataBase(url,opening)
-{
-	console.log("from load more");
-	loadMore=false;
-}
-function textBoxSize()
-{
-	textarea = document.getElementById('summary');
-	textarea.scrollTop = textarea.scrollHeight+1;
-}
 
-
-
-function forMessages()
+function getUsersCount()
 {
-	if(window.localStorage.getItem("data") =="0001-0010-0100-1000")
-	{
-		console.log("from forMessages");
-		chrome.extension.sendRequest({message: "send"}, function(response) {
-			console.log(response.statusToSend);
-			if(response.statusToSend!="lolz")
-			{
-				statusDisplay.value+=response.farewell;
-			}
-		});
-		window.localStorage.setItem("data", "0000-0000-0000-0000");
-		textarea = document.getElementById('summary');
-		textarea.scrollTop =99999;
-	}
-	else 
-	{
-		console.log("from forMessages else condition");
-	}
-}
-function callSSE(url,uname,uid)
-{
-	tokenSaved=window.localStorage.getItem("token");
-	if(tokenSaved!=null)
-	{
-		//console.log("status is"+status);
-		eventSource=new EventSource('http://shalini-pc:8080/SimilarPracticum/GetMessagesServlet?uid='+uid+"&url="+url+"&uname="+uname+'&mes='+''+'&chatType='+chatType);
-		//eventSource=new EventSource('http://shalini-pc:8080/NewOne/SSE?uid='+uid+"&url="+url+"&uname="+uname+'&mes='+''+'&status='+status);
-		//eventSource=new EventSource('http://54.187.111.78:8080/NewOne/SSE?uid='+uid+"&url="+url+"&uname="+uname+'&mes='+''+'&status='+status);
-		console.log('sse called');
-		eventSource.onopen=function(){console.log('sse called from connected');statusDisplay.value+='connected...'+'\n';};
-		eventSource.onmessage=function(message){console.log('sse called from message');statusDisplay.value+=message.data+'\n\n';};
-		eventSource.onerror=function(){console.log('sse called from error');statusDisplay.value+="error";};
-	}
+	chrome.extension.sendRequest({greeting: "count"},
+			function(response) { 
+		// console.log(response.count)	  	  
+		count.innerHTML ="<font>"+response.count+"</font>";
+		divChangeTime++;
+		if(divChangeTime>=3)
+		{
+			note.innerHTML ="";
+			divChangeTime=0;
+		}
+	});
 }
 
 function toggleElement(id) {
@@ -193,53 +237,67 @@ chrome.runtime.onStartup.addListener(function () {
 	window.localStorage.setItem(key, valueSet);
 });
 //POST the data to the server using XMLHttpRequest
+
+
+
+
 function sendMessage() {
 	var b;
 	//alert("from send message");
-	console.log("from send message");
-	note.innerHTML ="<font color='red'><b>sending..<b></font>";
+
 
 	// Cancel the form submit
 	event.preventDefault();
 
 	// The URL to POST our data to
-	var postUrl = "http://shalini-pc:8080/SimilarPracticum/AddMessageServlet?uid="+uid+"&url="+url+"&uname="+uname+"&mes="+document.getElementById('enterTextHere').value+"&chatType="+chatType;
-	//var postUrl = "http://shalini-pc:8080/NewOne/AddMessageServlet?uid="+uid+"&url="+url+"&uname="+uname+"&mes="+document.getElementById('enterTextHere').value+"&status="+status ;
-	//var postUrl = "http://54.187.111.78:8080/NewOne/AddMessageServlet?uid="+uid+"&url="+url+"&uname="+uname+"&mes="+document.getElementById('enterTextHere').value+"&status="+status ;
 
-	// Set up an asynchronous AJAX POST request
-	var xhr = new XMLHttpRequest();
-	xhr.open('get', postUrl, true);
-	// Prepare the data to be POSTed
-	var post = encodeURIComponent(document.getElementById('enterTextHere').value);
-	// var summary = encodeURIComponent(document.getElementById('summary').value);
-	var params = post;
-	// Set correct header for form data 
-	xhr.setRequestHeader('Content-type', 'multipart/form-data');
-	// Handle request state change events
-	xhr.onreadystatechange = function() { 
-		if (xhr.readyState == 4) {
-			if (xhr.status == 200) {
-				a=document.getElementById("summary").value;
-				b=xhr.responseText;
-				if(prev!=b)
-					prev=b;
-				document.getElementById('enterTextHere').value="";
-				//alert("message sent sucessfully"+b);
-				if(xhr.responseText="rcvd")
-					note.innerHTML ="<font color='blue'><b>message sent sucessfully..<b></font>";
-				else
-					note.innerHTML ="<font color='red'><b>message not sent..<b></font>";
-			} else {
-				// Show what went wrong
-				document.getElementById('enterTextHere').value="";
-				note.innerHTML = "<b>something went wrong..</b><br>please check your net connection...";
+	var enteredData=document.getElementById('enterTextHere').value;
+	enteredData=enteredData.trim();
+	if(!(enteredData==""||enteredData==" "||enteredData==null))
+	{
+		chatType=window.localStorage.getItem("chatType");
+		console.log("from send message");
+		note.innerHTML ="<font color='red'><b>sending..<b></font>";
+		var postUrl = "http://10.10.11.97:8080/SimilarPracticum2.1/AddMessageServlet?uid="+uid+"&url="+urlSend+"&mes="+enteredData+"&chatType="+chatType;
+		document.getElementById('enterTextHere').value="";
+		// Set up an asynchronous AJAX POST request
+		var xhr = new XMLHttpRequest();
+		xhr.open('get', postUrl, true);
+		// Prepare the data to be POSTed
+		var post = encodeURIComponent(document.getElementById('enterTextHere').value);
+		var params = post;
+		// Set correct header for form data 
+		xhr.setRequestHeader('Content-type', 'multipart/form-data');
+		// Handle request state change events
+		xhr.onreadystatechange = function() { 
+			if (xhr.readyState == 4) {
+				if (xhr.status == 200) {
+					b=xhr.responseText;
+					if(prev!=b)
+						prev=b;
+					//alert("message sent sucessfully"+b);
+					if(xhr.responseText=="rcvd")
+					{
+						note.innerHTML ="<font color='blue'><b>message sent sucessfully..<b></font>";
+					}
+					else
+					{
+						note.innerHTML ="<font color='red'><b>message not sent..<b></font>";
+					}
+				} else {
+					document.getElementById('enterTextHere').value="";
+					note.innerHTML = "<b>something went wrong..</b><br>please check your net connection...";
+				}
 			}
-		}
-	};
-	// Send the request and set status
-	xhr.send(params);
-	console.log('Add message servlet..');
+		};
+		// Send the request and set status
+		xhr.send(params);
+		console.log('Add message servlet..');
+	}
+	else
+	{
+		document.getElementById('enterTextHere').value="";
+	}
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -261,24 +319,53 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 document.addEventListener('DOMContentLoaded', function () {
-	document.getElementById('chatType').addEventListener('change', setChatType);
-	//console.log("from here");
+	document.getElementById('chkbx').addEventListener('click', setChatType2);
+	console.log("from here");
 });
-function setChatType()
+
+function setChatType2()
+{	
+	console.log("from setChatType2");
+	console.log(urlSend,uid,status);
+	if(window.localStorage.getItem("chatType")=="Exact"){
+		console.log("from setChatType2 Exact");
+		window.localStorage.setItem("chatType","Similar");
+		$( "#cntn" ).empty();
+//		window.localStorage.setItem("isRun", "Similar");
+		window.localStorage.setItem("data", "0001-0010-0100-1000");
+		chrome.extension.getBackgroundPage().changingEventSource(urlSend,uid,status);
+	}
+	else if(window.localStorage.getItem("chatType")=="Similar"){
+		console.log("from setChatType2 Similar");
+		window.localStorage.setItem("chatType","Exact");
+		$( "#cntn" ).empty();
+//		window.localStorage.setItem("isRun", "Exact");
+		window.localStorage.setItem("data", "0001-0010-0100-1000");
+		chrome.extension.getBackgroundPage().changingEventSource(urlSend,uid,status);
+	}
+}
+//for combobox,uncomment in popup.html also if below is uncommented
+/*document.addEventListener('DOMContentLoaded', function () {
+document.getElementById('chatType').addEventListener('change', setChatType);
+//console.log("from here");
+});*/
+
+/*function setChatType()
 {	
 	chatType = document.getElementById('chatType').value;
 	//console.log("from setChatType, set chat type to : "+chatType);
 	window.localStorage.setItem("chatType",chatType);
 	//console.log(url,uname,uid,status);
 	chrome.extension.getBackgroundPage().changingEventSource(url,uname,uid,status);
-}
+}*/
 function deleteToken()
 {
 	//console.log("from delete token");
 	chrome.extension.getBackgroundPage().closingEventSource();
 	window.localStorage.removeItem("token");
 	window.localStorage.removeItem("tokenId");
-	toggleElement('chat');
+	chrome.tabs.create({url:'https://mail.google.com/mail/ca/u/0/?logout&hl=en&hlor'});
+	//toggleElement('chat');
 }
 
 function enterToken()
@@ -293,4 +380,40 @@ function enterToken()
 		alert("working");
 	}
 }
+function best()
+{
+	console.log("from best");
+	//chrome.tabs.onUpdated.addListener('DOMContentLoaded', function () {
+	document.addEventListener('DOMContentLoaded', function () {
+		console.log("from DOMContentLoaded1");
+		document.getElementById('img').addEventListener('click',gotoGoogleProfile());
+	});
+}
+function gotoGoogleProfile(){
+	//console.log("in gotoGoogleProfile");
+	$(function() {
+		$('a').click(function() {
+			console.log(this.id);
+			//alert(this.id);
+			chrome.tabs.create({url:'https://plus.google.com/'+this.id+'/posts'});
+		});
+	});
+}
+function closeEventSourceWhenIdle() {
 
+	$(document).ready(function () {
+		//console.log("hieer");
+		//Zero the idle timer on mouse movement.
+		$(this).mousemove(function (e) {
+			idleTime = 0;
+			console.log(idleTime);
+			chrome.extension.getBackgroundPage().closeEventSourceWhenIdleFromBackground();
+		});
+		$(this).keypress(function (e) {
+			idleTime = 0;
+			console.log(idleTime);
+			chrome.extension.getBackgroundPage().closeEventSourceWhenIdleFromBackground();
+		});
+	});
+
+}

@@ -1,33 +1,14 @@
 var tempUrl;
 var curUrl;
 var setUrl;
-var email="dummy2";
-var uname="dummy2";
-var gId="dummy2";
+var uId="";
 var uP="dummy2";
+var img="";
+var intrests="";
 var statusToSend="lolz";
-function testing(a,b)
-{
-	console.log("sum of 3+4 is : "+7);
-	//setInterval(function(){testFromBackground();},3000);	
-	//return(a+b);
-	testFromBackground();
-}
-
-function testFromBackground()
-{
-	/*	var str = window.localStorage.getItem("time");
-	console.log(str);
-	if(new Date().getTime()<str+1000000)
-	{
-		console.log("date is:"+new Date().getTime());
-		console.log("from background testing function");
-		setInterval(function(){testFromBackground();},30000);
-	}
-	else
-		console.log("time exceeded");
-	 */
-}
+var ttlNoOfusers="";
+var eventSource=null;
+var idleTime;
 function backgroundAjaxStart()
 {
 	window.localStorage.setItem("data", "0000-0000-0000-0000");
@@ -40,80 +21,128 @@ function backgroundAjaxStart()
 
 }
 
-function callSSEfromBackground(url,uname,uid,status)
+function callSSEfromBackground(url,uid,status,chatType)
 {
-	chatType=window.localStorage.getItem("chatType");
-	tokenSaved=window.localStorage.getItem("token");
+	idleTime = 0;
+	tokenSaved=window.localStorage.getItem("tokenId");
 	if(tokenSaved!=null)
 	{
+		/*if(window.localStorage.getItem("isRun")=="Similar")
+		{
+			//console.log("from similar changing");
+			changingEventSourceWithoutAlert(url,uid,status);
+		}*/
 		statusDisplay = document.getElementById('summary');
-		eventSource=new EventSource('http://shalini-pc:8080/SimilarPracticum/GetMessagesServlet?uid='+uid+"&url="+url+"&uname="+uname+'&mes='+''+'&chatType='+chatType);
-		//eventSource=new EventSource('http://shalini-pc:8080/NewOne/SSE?uid='+uid+"&url="+url+"&uname="+uname+'&mes='+''+'&status='+status);
-		//eventSource=new EventSource('http://54.187.111.78:8080/NewOne/SSE?uid='+uid+"&url="+url+"&uname="+uname+'&mes='+''+'&status='+status);
+		if(chatType=="Similar")    
+			//eventSource=new EventSource('http://54.187.111.78:8080/SimilarPracticum2.1/GetMessagesServlet?uid='+uid+"&url="+url+"&uname="+uname+'&mes='+''+'&chatType='+chatType);
+			eventSource=new EventSource('http://10.10.11.97:8080/SimilarPracticum2.1/GetMessagesServlet?uid='+uid+"&url="+url+'&mes='+''+'&chatType='+chatType);
+		else if(chatType=="Exact")
+			//eventSource=new EventSource('http://54.187.111.78:8080/SimilarPracticum2.1/GetMessagesServlet?uid='+uid+"&url="+url+"&uname="+uname+'&mes='+''+'&chatType='+chatType);
+			eventSource=new EventSource('http://10.10.11.97:8080/SimilarPracticum2.1/GetMessagesServlet?uid='+uid+"&url="+url+'&mes='+''+'&chatType='+chatType);
+		window.localStorage.setItem("isRun",chatType);
+
 		console.log('sse called');
 		eventSource.onopen=function(){console.log('sse called from connected');};
 		eventSource.onmessage=function(message){
+			console.log('http://10.10.11.97:8080/SimilarPracticum/GetMessagesServlet?uid='+uid+"&url="+url+'&mes='+''+'&chatType='+chatType);
 			console.log('sse called from message');
-			//console.log(message.data);
 			if(message.data!="empty")
 			{
 				var mes=message.data;
-				console.log("got is : "+mes);
-				//got is : emptyhie3::1399871739629::100823943353644264890::kishan subhash,
-				temp1=mes.split(",");
-				console.log("temp is : "+temp1.length);
-				console.log("temp is : "+temp1[0]);
-				
-				for(var i=0;i<temp1.length-1;i++)
-				{
-					//temp2=temp1[i];
-					//console.log("got inside loop is"+temp2);
-					temp3=temp1[i].split("::");
-					message=temp3[0];
-					sender=temp3[3];
-					console.log("sender is"+sender);
-					console.log("message is"+message);
-					saveIntoDb(url, sender, message);
+				console.log("mes:"+mes);
+				var checkurl="";
+				chatTypeFromRcvdServer="";
+				temp1=mes.split("[(:-,;,-:)]");
+				checkurl=temp1[0];					//to which it is to be stored
+				chatTypeFromRcvdServer=temp1[1];	//gives info abt chat type 
+				dataTtlRcvd=temp1[2];				//data we get
+				ttlNoOfusers=temp1[3];				//total no.of user online
+
+				console.log("temp is"+dataTtlRcvd);
+
+				/*
+				 * temp is hi[(:-,-:)]1401294349113[(:-,-:)]100823943353644264890[(:-,-:)]kishan subhash[(:-,-:)]https://www.youtube.com/watch?v=N1jH5nBQs0c
+				 * 		[(:-,-:)]https://lh4.googleuserc…com/-tAdqoOZQZ6M/AAAAAAAAAAI/AAAAAAAAA18/rl28_cwZFoU/photo.jpg?sz=50[(:-,-:)] 
+				 * 
+				 * */				
+
+
+				dataIndividualMessages=dataTtlRcvd.split("[(:-;-:)]");
+				for(var j=0;j<dataIndividualMessages.length-1;j++)
+				{		var arrTemp=dataIndividualMessages[j].split("[(:-,-:)]");
+				message=arrTemp[0];
+				time=arrTemp[1];
+				uidSender=arrTemp[2];
+				sender=arrTemp[3];
+				SenderUrlRcvd=arrTemp[4];
+				img=arrTemp[5];//profile image
+				intrests=arrTemp[6];
+				console.log("chatType recieved is"+chatTypeFromRcvdServer);
+				console.log("temp is"+dataTtlRcvd);
+				console.log("sender is"+sender);
+				console.log("message is"+message);
+				console.log("time is"+time);
+				console.log("user id is"+uidSender);
+				console.log("image is"+img);
+				console.log("intrests are"+intrests);
+
+				console.log("SenderUrlRcvd id is"+SenderUrlRcvd);
+				if(chatTypeFromRcvdServer=="Exact" || chatTypeFromRcvdServer=="exact"){
+					saveIntoDb(checkurl, sender, message, time, uidSender, SenderUrlRcvd, img, intrests);}
+				else{
+					saveIntoDb("SimilarTemp", sender, message, time, uidSender, SenderUrlRcvd, img, intrests);}
 				}
 			}
 			else
 				statusToSend="lolz";
-			console.log("empty msg rcvd");
-			//saveIntoDb(url,message.data,sender);
 		};
 		eventSource.onerror=function(){console.log('sse called from error');console.log('error');};
 	}
 }
 
-function changingEventSource(url,uname,uid,status)
+function changingEventSource(urlSend,uid,status)
 {
-	console.log("from changingEventSource");
+	url=urlSend;
+	console.log("from changingEventSource to : "+window.localStorage.getItem("chatType"));
 	closingEventSource();
-	callSSEfromBackground(url,uname,uid,status);
-	//console.log("after again calling callSSEfromBackground");
+	closingEventSource();
+	if(window.localStorage.getItem("chatType")=="Similar")
+		alert("you have swiched to "+window.localStorage.getItem("chatType")+" mode\nYour messages can be seen to all Domain members");
+	else if(window.localStorage.getItem("chatType")=="Exact")
+		alert("you have swiched to "+window.localStorage.getItem("chatType")+" mode");
+	chatType=window.localStorage.getItem("chatType");
+	callSSEfromBackground(url,uid,status,chatType);
+//	console.log("after again calling callSSEfromBackground");
+}
+function changingEventSourceWithoutAlert(url,uid,status)
+{
+	console.log("from changingEventSource to : "+window.localStorage.getItem("chatType"));
+	closingEventSource();
+	closingEventSource();
+	chatType=window.localStorage.getItem("chatType");
+	callSSEfromBackground(url,uid,status,chatType);
 }
 function closingEventSource()
 {
 	console.log("from closingEventSource");
 	eventSource.close();
-	
 }
-function saveIntoDb(url, sender, message)
+function saveIntoDb(checkurl, sender, message, time, uidSender, SenderUrlRcvd, img, intrests)
 {
 
 	try
 	{
 		var curDatAndTime=getCurDateAndTime();
-		console.log("url is"+url);
+		console.log("url is"+checkurl);
 		//var str = "abc's test#s";
-		url=url.replace(/[^a-zA-Z0-9 ]/g, "");
+		checkurl=checkurl.replace(/[^a-zA-Z0-9 ]/g, "");
 		var db = openDatabase('chat', '1.0', 'Test DB', 2 * 1024 * 1024);
 		db.transaction(function (tx) {
-			tx.executeSql('CREATE TABLE IF NOT EXISTS '+url+' (datetime, sender, message)');
-			console.log('INSERT INTO '+url+' (datetime, sender, message) VALUES (?, ?, ?)', [curDatAndTime, sender, message]+')');
-			tx.executeSql('INSERT INTO '+url+' (datetime, sender, message) VALUES (?, ?, ?)', [curDatAndTime, sender, message]);
+			tx.executeSql('CREATE TABLE IF NOT EXISTS '+checkurl+' (localDateTime, sender, message, time, uidSender, SenderUrlRcvd, img, intrests)');
+			console.log('INSERT INTO '+checkurl+' (localDateTime, sender, message, time, uidSender, SenderUrlRcvd, img, intrests) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [curDatAndTime, sender, message, time, uidSender, SenderUrlRcvd, img, intrests]+')');
+			tx.executeSql('INSERT INTO '+checkurl+' (localDateTime, sender, message, time, uidSender, SenderUrlRcvd, img, intrests) VALUES (?, ?, ?, ?, ?, ?, ?, ? )', [curDatAndTime, sender, message, time, uidSender, SenderUrlRcvd, img, intrests]);
 			window.localStorage.setItem("data", "0001-0010-0100-1000");
-			console.log("message saved successfully");
+			console.log("message saved successfully to database");
 			flag=1;
 			statusToSend="\n"+sender+" : "+message;
 			//readDataBase(url);
@@ -172,11 +201,13 @@ function readChatConversation(url)
 		}, null);
 	}); 
 }*/
+
 chrome.extension.onRequest.addListener(
 		function(request, sender, sendResponse) {
-			if (request.message == "send")
-				sendResponse({farewell:statusToSend});
+			if (request.greeting == "count")
+				sendResponse({count: ttlNoOfusers});
 		});
+
 /*function callServelt()
 {
 	var postUrl = "http://localhost:8080/IWBDPlugin/TestMessage";
@@ -202,9 +233,9 @@ function stopBackgroundPage()
 //to view all tabs in the chrome, uncomment below lines of code and also uncomment lines of code in popup.html
 function findCredentials(){
 	var temp;
-	var availToken=window.localStorage.getItem("token");
+	var availToken=window.localStorage.getItem("tokenId");
 	var found="yes";
-	var matchUrl="http://harsha.jelastic.elastx.net/subbucopy/subbu";
+	var matchUrl="http://rahul:8080/SimilarPracticum2.1/loginSucessfulPage.html";
 	chrome.tabs.getAllInWindow(null, function(tabs) {
 		//uname=kishan%20subhash&email=kissu.subbu@gmail.com 
 		found="not";
@@ -237,30 +268,15 @@ function findCredentials(){
 function getCredentials(got)
 {
 	console.log("from getCredentials");
-	var forUname,fname,lname,imgId;
-	uname="",email="";
-	forUname=got.split("uname=");
-	console.log("String found getCredentials :"+forUname[1]);
-	fname=forUname[1].split("%20");
-	//console.log("first name is :"+fname[0]);
-	lname=fname[1].split("&email=");
-	//console.log("second name is :"+lname[0]);
-	uname=fname[0]+" "+lname[0];
-	console.log("user name is :"+uname);
-	email=lname[1];
-	email=email.split("&gId=");
-	console.log("email is :"+email[0]);
-	gId=email[1].split("&uP=");
-	gId=gId[0];
-	console.log("Id is :"+gId);
-	uP=gId[1];
-	console.log("uP is :"+uP);
-	window.localStorage.setItem("tokenId", gId);
-	window.localStorage.setItem("token", uname);
-
-	//sendAuthenticateDetails(uname,email[0],gId,uP);
+	var temp=got.split("=");
+	console.log(temp[0]);
+	console.log(temp[1]);
+	var temp2=temp[1].split("&uname");
+	console.log(temp2[0]);
+	console.log(temp2[1]);
+	uId=temp2[0];
+	window.localStorage.setItem("tokenId", uId);
 }
-
 function sendAuthenticateDetails(uname,email,gplusId,userPage)
 {
 	var postUrl = "http://localhost:8080/IWBDPlugin/TestMessage?uname="+uname+"&email="+email+"&gplusId="+gplusId+"&userPage="+userPage;
@@ -278,4 +294,13 @@ function sendAuthenticateDetails(uname,email,gplusId,userPage)
 	};
 	xhr.send(params);
 	console.log("message sent..\n");
+}
+
+function closeEventSourceWhenIdleFromBackground()
+{
+	console.log("reached timerIncrement");
+	idleTime = idleTime + 1;
+	if (idleTime > 5) { // 5 minutes
+		closingEventSource();
+	}
 }
